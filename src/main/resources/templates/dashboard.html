@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">AutoFixPro - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .dashboard-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar text-white p-3">
+                <div class="d-flex align-items-center mb-4">
+                    <i class="fas fa-wrench fa-2x me-2"></i>
+                    <h4 class="mb-0">AutoFixPro</h4>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white active" href="#"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                    <a class="nav-link text-white" href="/api/clientes"><i class="fas fa-users me-2"></i>Clientes</a>
+                    <a class="nav-link text-white" href="/api/vehiculos"><i class="fas fa-car me-2"></i>Vehículos</a>
+                    <a class="nav-link text-white" href="#"><i class="fas fa-clipboard-list me-2"></i>Órdenes</a>
+                    <a class="nav-link text-white" href="#"><i class="fas fa-tools me-2"></i>Servicios</a>
+                    <a class="nav-link text-white" href="/h2-console" target="_blank"><i class="fas fa-database me-2"></i>Base de Datos</a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 th:text="${message}">Sistema de Gestión de Taller Mecánico</h2>
+                    <div class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card dashboard-card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Clientes</h5>
+                                <p class="card-text h4 text-primary">0</p>
+                                <small class="text-muted">Total registrados</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card dashboard-card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-car fa-3x text-success mb-3"></i>
+                                <h5 class="card-title">Vehículos</h5>
+                                <p class="card-text h4 text-success">0</p>
+                                <small class="text-muted">En sistema</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card dashboard-card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clipboard-list fa-3x text-warning mb-3"></i>
+                                <h5 class="card-title">Órdenes Activas</h5>
+                                <p class="card-text h4 text-warning">0</p>
+                                <small class="text-muted">En progreso</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card dashboard-card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tools fa-3x text-info mb-3"></i>
+                                <h5 class="card-title">Servicios</h5>
+                                <p class="card-text h4 text-info">0</p>
+                                <small class="text-muted">Completados hoy</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-primary w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-user-plus me-2"></i>Nuevo Cliente
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-success w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-car me-2"></i>Registrar Vehículo
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-warning w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-plus me-2"></i>Nueva Orden
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-info w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-chart-bar me-2"></i>Ver Reportes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Endpoints Info -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-code me-2"></i>API Endpoints Disponibles</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">Clientes</h6>
+                                        <ul class="list-unstyled">
+                                            <li><code>GET /api/clientes</code> - Listar todos</li>
+                                            <li><code>POST /api/clientes</code> - Crear nuevo</li>
+                                            <li><code>GET /api/clientes/{id}</code> - Obtener por ID</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-success">Vehículos</h6>
+                                        <ul class="list-unstyled">
+                                            <li><code>GET /api/vehiculos</code> - Listar todos</li>
+                                            <li><code>POST /api/vehiculos</code> - Crear nuevo</li>
+                                            <li><code>GET /api/vehiculos/{id}</code> - Obtener por ID</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Consola H2:</strong> Puedes acceder a la base de datos en 
+                                    <a href="/h2-console" target="_blank" class="alert-link">/h2-console</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mostrar fecha actual
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric'
+        });
+    </script>
+</body>
+</html>
