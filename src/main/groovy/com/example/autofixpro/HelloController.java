@@ -15,7 +15,7 @@ public class HelloController {
 
     private final Locale spanishLocale = new Locale("es", "ES");
 
-    @GetMapping("/")
+    @GetMapping("/api")
     public String holaMundo() {
         String welcomeMessage = messageSource.getMessage("app.welcome", null, spanishLocale);
         return "🚗 " + welcomeMessage + " 🔧 Spring Boot funcionando correctamente";
