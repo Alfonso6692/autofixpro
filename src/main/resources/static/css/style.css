@@ -1,0 +1,251 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #2e8b57, #3cb371);
+    color: white;
+    padding: 20px 0;
+    position: relative;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.logo {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Navigation */
+.nav {
+    background-color: #2c2c2c;
+    padding: 0;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    padding: 15px 25px;
+    display: block;
+    transition: background-color 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.nav-item:hover {
+    background-color: #3cb371;
+}
+
+/* Main Content */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.section {
+    margin: 60px 0;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    color: #2e8b57;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.section-description {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 40px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.8;
+}
+
+/* Services Section */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.service-card {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.service-title {
+    font-size: 1.3rem;
+    color: #2e8b57;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.service-description {
+    color: #666;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Action Sections */
+.action-section {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin: 40px 0;
+}
+
+.action-title {
+    font-size: 1.8rem;
+    color: #2e8b57;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.action-description {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+.btn {
+    background: linear-gradient(135deg, #3cb371, #2e8b57);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(60, 179, 113, 0.4);
+}
+
+/* Contact Section */
+.contact-info {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.contact-item {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+.contact-icon {
+    color: #3cb371;
+    margin-right: 10px;
+}
+
+/* Footer */
+.footer {
+    background-color: #2c2c2c;
+    color: white;
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 60px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-content {
+        flex-direction: column;
+    }
+
+    .nav-item {
+        text-align: center;
+        border-bottom: 1px solid #444;
+    }
+
+    .logo {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .action-section {
+        padding: 30px 20px;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.service-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.service-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.service-card:nth-child(3) {
+    animation-delay: 0.4s;
+}

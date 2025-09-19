@@ -43,7 +43,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 // Permitir acceso público a estas rutas
-                .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()
+                .requestMatchers("/", "/index", "/test", "/login", "/register", "/static/**", "/css/**", "/js/**", "/images/**", "/templates/**", "/h2-console/**").permitAll()
                 // Requerir autenticación para todas las demás rutas
                 .anyRequest().authenticated()
             )
@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .ignoringRequestMatchers("/h2-console/**")
                 .disable()
             )
-            .headers(headers -> headers.frameOptions().disable()); // Para H2 Console
+            .headers(headers -> headers.frameOptions().sameOrigin()); // Para H2 Console
 
         return http.build();
     }
