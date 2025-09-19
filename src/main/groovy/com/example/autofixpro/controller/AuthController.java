@@ -30,18 +30,7 @@ public class AuthController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String processLogin(@RequestParam("username") String username, 
-                              @RequestParam("password") String password,
-                              RedirectAttributes redirectAttributes) {
-        // Validación simple (en producción usar Spring Security)
-        if ("admin".equals(username) && "123".equals(password)) {
-            return "redirect:/dashboard";
-        } else {
-            redirectAttributes.addAttribute("error", "true");
-            return "redirect:/login";
-        }
-    }
+    // Spring Security maneja el POST login automáticamente
 
     @GetMapping("/register")
     public String register(Model model) {
