@@ -11,6 +11,15 @@ body {
     background-color: #f5f5f5;
 }
 
+/* Background image only for login page */
+body.login-page {
+    background-image: url("/images/auto.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
 /* Header */
 .header {
     background: linear-gradient(135deg, #2e8b57, #3cb371);

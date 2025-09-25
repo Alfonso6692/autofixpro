@@ -42,8 +42,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
+                // Permitir acceso a recursos estáticos PRIMERO
+                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                 // Permitir acceso público a estas rutas
-                .requestMatchers("/", "/index", "/test", "/login", "/register", "/static/**", "/css/**", "/js/**", "/images/**", "/templates/**", "/h2-console/**").permitAll()
+                .requestMatchers("/", "/index", "/test", "/login", "/register", "/templates/**", "/h2-console/**").permitAll()
                 // Requerir autenticación para todas las demás rutas
                 .anyRequest().authenticated()
             )
