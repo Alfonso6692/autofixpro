@@ -39,7 +39,7 @@ public class HelloController {
                 """;
     }
 
-    @GetMapping("/status")
+    /*@GetMapping("/status")
     public String status() {
         return """
                 {
@@ -47,5 +47,5 @@ public class HelloController {
                     "timestamp": """ + "\"" + java.time.Instant.now() + "\"" + """
                 }
                 """;
-    }
+    }*/
 }

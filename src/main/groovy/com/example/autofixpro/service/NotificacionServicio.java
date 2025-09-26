@@ -6,13 +6,15 @@ import com.example.autofixpro.entity.Notification;
 import com.example.autofixpro.enumeration.EstadoOrden;
 import com.example.autofixpro.enumeration.TipoNotificacion;
 import com.example.autofixpro.util.SistemaNotificaciones;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NotificacionServicio {
 
-    // Singleton para sistema de notificaciones
-    private final SistemaNotificaciones sistemaNotificaciones = SistemaNotificaciones.getInstance();
+    // Inyección de dependencias de Spring
+    @Autowired
+    private SistemaNotificaciones sistemaNotificaciones;
 
     public void enviarNotificacionRegistro(Cliente cliente) {
         String mensaje = String.format("Bienvenido %s %s. Su registro ha sido completado exitosamente.",

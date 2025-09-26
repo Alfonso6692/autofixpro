@@ -3,6 +3,8 @@ package com.example.autofixpro.entity;
 import com.example.autofixpro.enumeration.EstadoOrden;
 import com.example.autofixpro.enumeration.Prioridad;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +38,7 @@ public class OrdenServicio {
     // Relación con Vehículo
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehiculo_id")
+    @JsonBackReference("vehiculo-ordenes")
     private Vehiculo vehiculo;
 
     // Relación con Técnico
@@ -45,10 +48,12 @@ public class OrdenServicio {
 
     // Relación con Servicios
     @OneToMany(mappedBy = "ordenServicio", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Servicio> servicios;
 
     // Relación con Estados de Vehículo
     @OneToMany(mappedBy = "ordenServicio", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<EstadoVehiculo> estadosVehiculo;
 
     // Constructores

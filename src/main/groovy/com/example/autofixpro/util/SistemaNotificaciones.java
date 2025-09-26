@@ -1,6 +1,8 @@
 package com.example.autofixpro.util;
 
 import com.example.autofixpro.entity.Notification;
+import com.example.autofixpro.service.AwsSnsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -11,25 +13,19 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class SistemaNotificaciones {
 
-    // Implementación Singleton
-    private static SistemaNotificaciones instance;
     private List<String> configuracionEmail;
     private List<String> configuracionSMS;
     private List<String> plantillas;
 
-    private SistemaNotificaciones() {
+    @Autowired(required = false)
+    private AwsSnsService awsSnsService;
+
+    public SistemaNotificaciones() {
         // Configuración inicial
         this.configuracionEmail = new ArrayList<>();
         this.configuracionSMS = new ArrayList<>();
         this.plantillas = new ArrayList<>();
         inicializarConfiguracion();
-    }
-
-    public static synchronized SistemaNotificaciones getInstance() {
-        if (instance == null) {
-            instance = new SistemaNotificaciones();
-        }
-        return instance;
     }
 
     private void inicializarConfiguracion() {
@@ -65,16 +61,40 @@ public class SistemaNotificaciones {
     }
 
     public void enviarSMS(String telefono, String mensaje) {
-        // Envío asíncrono de SMS
+        // Envío asíncrono de SMS usando AWS SNS
         CompletableFuture.runAsync(() -> {
             try {
-                // Simular envío de SMS
-                Thread.sleep(500);
-                System.out.println("SMS enviado a: " + telefono + " - " + mensaje);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                if (awsSnsService != null && awsSnsService.esSnsHabilitado()) {
+                    // Usar AWS SNS para envío real
+                    awsSnsService.enviarNotificacionSMS(telefono, mensaje)
+                        .thenAccept(messageId -> {
+                            System.out.println("SMS enviado via AWS SNS - MessageId: " + messageId +
+                                             " - Teléfono: " + telefono);
+                        })
+                        .exceptionally(throwable -> {
+                            System.err.println("Error enviando SMS via AWS SNS: " + throwable.getMessage());
+                            // Fallback a simulación
+                            enviarSMSSimulado(telefono, mensaje);
+                            return null;
+                        });
+                } else {
+                    // Simulación local
+                    enviarSMSSimulado(telefono, mensaje);
+                }
+            } catch (Exception e) {
+                System.err.println("Error en enviarSMS: " + e.getMessage());
+                enviarSMSSimulado(telefono, mensaje);
             }
         });
+    }
+
+    private void enviarSMSSimulado(String telefono, String mensaje) {
+        try {
+            Thread.sleep(500);
+            System.out.println("SMS simulado enviado a: " + telefono + " - " + mensaje);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void programarNotificacion(String destinatario, String mensaje, LocalDateTime fechaEnvio) {

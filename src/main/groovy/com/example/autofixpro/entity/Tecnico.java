@@ -25,8 +25,16 @@ public class Tecnico {
     @Column(nullable = false, length = 20)
     private String telefono;
 
+    @Column(length = 100)
+    private String email;
+
     @Column(nullable = false)
     private Boolean estadoActivo;
+
+
+
+
+
 
     // Relación con Órdenes de Servicio
     @OneToMany(mappedBy = "tecnico", fetch = FetchType.LAZY)
