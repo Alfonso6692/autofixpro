@@ -1,6 +1,8 @@
 package com.example.autofixpro.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
 
 @Entity
@@ -31,10 +33,12 @@ public class Vehiculo {
     // Relación con Cliente
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
+    @JsonBackReference
     private Cliente cliente;
 
     // Relación con Órdenes de Servicio
     @OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference("vehiculo-ordenes")
     private List<OrdenServicio> ordenesServicio;
 
     // Constructores
