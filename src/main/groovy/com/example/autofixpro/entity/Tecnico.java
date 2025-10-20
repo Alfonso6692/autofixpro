@@ -1,5 +1,6 @@
 package com.example.autofixpro.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class Tecnico {
 
     // Relación con Órdenes de Servicio
     @OneToMany(mappedBy = "tecnico", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<OrdenServicio> ordenesAsignadas;
 
     // Relación con Taller Mecánico

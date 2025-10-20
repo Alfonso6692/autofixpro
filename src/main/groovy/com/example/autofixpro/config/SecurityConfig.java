@@ -1,20 +1,29 @@
 package com.example.autofixpro.config;
 
+import com.example.autofixpro.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
+
+    private final UsuarioService usuarioService;
+
+    public SecurityConfig(@Lazy UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -22,49 +31,58 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails joel = User.builder()
-                .username("joel")
-                .password(passwordEncoder().encode("123"))
-                .roles("USER")
-                .build();
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(usuarioService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder().encode("admin123"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(joel, admin);
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
-                // Permitir acceso a recursos estáticos PRIMERO
+                // Permitir acceso a recursos estáticos
                 .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                // Permitir acceso público a estas rutas
-                .requestMatchers("/", "/index", "/test", "/login", "/register", "/templates/**", "/h2-console/**").permitAll()
-                // Requerir autenticación para todas las demás rutas
+                // Permitir acceso público a login y registro
+                .requestMatchers("/", "/index", "/login", "/register", "/api/auth/**").permitAll()
+                // Permitir acceso a la API REST sin autenticación
+                .requestMatchers("/api/**").permitAll()
+                // H2 Console solo para desarrollo
+                .requestMatchers("/h2-console/**").permitAll()
+                // Rutas administrativas
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                // Todas las demás requieren autenticación
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
+                .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/dashboard", true)
                 .failureUrl("/login?error=true")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login")
+                .logoutSuccessUrl("/login?logout=true")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
                 .permitAll()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**")
-                .disable()
+                .ignoringRequestMatchers("/h2-console/**", "/api/**")
             )
-            .headers(headers -> headers.frameOptions().sameOrigin()); // Para H2 Console
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
+            )
+            .authenticationProvider(authenticationProvider());
 
         return http.build();
     }

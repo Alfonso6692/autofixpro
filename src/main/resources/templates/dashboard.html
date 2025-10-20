@@ -35,10 +35,10 @@
                 </div>
                 
                 <nav class="nav flex-column">
-                    <a class="nav-link text-white active" href="#"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                    <a class="nav-link text-white active" href="/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
                     <a class="nav-link text-white" href="/api/clientes"><i class="fas fa-users me-2"></i>Clientes</a>
-                    <a class="nav-link text-white" href="/api/vehiculos"><i class="fas fa-car me-2"></i>Vehículos</a>
-                    <a class="nav-link text-white" href="#"><i class="fas fa-clipboard-list me-2"></i>Órdenes</a>
+                    <a class="nav-link text-white" href="/vehiculos"><i class="fas fa-car me-2"></i>Vehículos</a>
+                    <a class="nav-link text-white" href="/ordenes"><i class="fas fa-clipboard-list me-2"></i>Órdenes</a>
                     <a class="nav-link text-white" href="#"><i class="fas fa-tools me-2"></i>Servicios</a>
                     <a class="nav-link text-white" href="/sms/cliente"><i class="fas fa-sms me-2"></i>Enviar SMS</a>
                     <div class="nav-text text-white-50 mt-3"><i class="fas fa-database me-2"></i>MySQL AWS RDS</div>
@@ -59,10 +59,17 @@
                                 <i class="fas fa-user me-1"></i> Admin
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2"></i>Perfil</a></li>
+                                <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user-cog me-2"></i>Perfil</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+                                <li>
+                                    <form method="post" action="/logout" style="display: inline;">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button type="submit" class="dropdown-item" style="cursor: pointer; border: none; background: none; width: 100%; text-align: left;">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -75,7 +82,7 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-users fa-3x text-primary mb-3"></i>
                                 <h5 class="card-title">Clientes</h5>
-                                <p class="card-text h4 text-primary">0</p>
+                                <p class="card-text h4 text-primary" th:text="${totalClientes}">0</p>
                                 <small class="text-muted">Total registrados</small>
                             </div>
                         </div>
@@ -86,21 +93,23 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-car fa-3x text-success mb-3"></i>
                                 <h5 class="card-title">Vehículos</h5>
-                                <p class="card-text h4 text-success">0</p>
+                                <p class="card-text h4 text-success" th:text="${totalVehiculos}">0</p>
                                 <small class="text-muted">En sistema</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <div class="card dashboard-card h-100 border-0 shadow-sm">
-                            <div class="card-body text-center">
-                                <i class="fas fa-clipboard-list fa-3x text-warning mb-3"></i>
-                                <h5 class="card-title">Órdenes Activas</h5>
-                                <p class="card-text h4 text-warning">0</p>
-                                <small class="text-muted">En progreso</small>
+                        <a href="/ordenes" class="text-decoration-none">
+                            <div class="card dashboard-card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clipboard-list fa-3x text-warning mb-3"></i>
+                                    <h5 class="card-title">Órdenes Activas</h5>
+                                    <p class="card-text h4 text-warning" th:text="${ordenesActivas}">0</p>
+                                    <small class="text-muted">En progreso</small>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
 
                     <div class="col-md-3 mb-3">
@@ -108,8 +117,8 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-tools fa-3x text-info mb-3"></i>
                                 <h5 class="card-title">Servicios</h5>
-                                <p class="card-text h4 text-info">0</p>
-                                <small class="text-muted">Completados hoy</small>
+                                <p class="card-text h4 text-info" th:text="${serviciosCompletados}">0</p>
+                                <small class="text-muted">Completados</small>
                             </div>
                         </div>
                     </div>
@@ -135,15 +144,68 @@
                                         </button>
                                     </div>
                                     <div class="col-md-3 mb-2">
-                                        <button class="btn btn-warning w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                        <a href="/ordenes/nueva" class="btn btn-warning w-100">
                                             <i class="fas fa-plus me-2"></i>Nueva Orden
-                                        </button>
+                                        </a>
                                     </div>
                                     <div class="col-md-3 mb-2">
                                         <button class="btn btn-info w-100" onclick="alert('Funcionalidad en desarrollo')">
                                             <i class="fas fa-chart-bar me-2"></i>Ver Reportes
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Clientes -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Clientes Registrados</h5>
+                                <span class="badge bg-primary" th:text="${totalClientes} + ' clientes'">0 clientes</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Nombres</th>
+                                                <th>Apellidos</th>
+                                                <th>DNI</th>
+                                                <th>Teléfono</th>
+                                                <th>Email</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:if="${#lists.isEmpty(clientes)}">
+                                                <td colspan="7" class="text-center text-muted">
+                                                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                                    No hay clientes registrados
+                                                </td>
+                                            </tr>
+                                            <tr th:each="cliente, iterStat : ${clientes}">
+                                                <td th:text="${iterStat.count}">1</td>
+                                                <td th:text="${cliente.nombres}">Juan</td>
+                                                <td th:text="${cliente.apellidos}">Pérez</td>
+                                                <td th:text="${cliente.dni}">12345678</td>
+                                                <td th:text="${cliente.telefono}">987654321</td>
+                                                <td th:text="${cliente.email}">juan@example.com</td>
+                                                <td>
+                                                    <a th:href="@{/clientes/{id}(id=${cliente.clienteId})}" class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a th:href="@{/clientes/{id}/vehiculos(id=${cliente.clienteId})}" class="btn btn-sm btn-outline-success" title="Ver vehículos">
+                                                        <i class="fas fa-car"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -176,11 +238,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="alert alert-info mt-3">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <strong>Consola H2:</strong> Puedes acceder a la base de datos en 
-                                    <a href="/h2-console" target="_blank" class="alert-link">/h2-console</a>
-                                </div>
+
                             </div>
                         </div>
                     </div>

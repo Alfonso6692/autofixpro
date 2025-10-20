@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Orden de Servicio - AutoFixPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            margin: 20px auto;
+            max-width: 900px;
+        }
+        .page-title {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .required-mark {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <h1 class="page-title">
+                <i class="fas fa-plus-circle"></i>
+                Nueva Orden de Servicio
+            </h1>
+
+            <!-- Alertas -->
+            <div id="alertContainer"></div>
+
+            <form id="formNuevaOrden">
+                <!-- Sección: Información del Vehículo -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-car me-2"></i>Información del Vehículo
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="vehiculoId" class="form-label">
+                                    Vehículo <span class="required-mark">*</span>
+                                </label>
+                                <select class="form-select" id="vehiculoId" name="vehiculoId" required>
+                                    <option value="">Seleccione un vehículo...</option>
+                                </select>
+                                <small class="text-muted">Seleccione el vehículo que ingresará al taller</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="vehiculoInfo" class="form-label">Detalles del Vehículo</label>
+                                <input type="text" class="form-control" id="vehiculoInfo" readonly
+                                       placeholder="Seleccione un vehículo para ver detalles">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección: Detalles de la Orden -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-clipboard-list me-2"></i>Detalles de la Orden
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="descripcionProblema" class="form-label">
+                                Descripción del Problema <span class="required-mark">*</span>
+                            </label>
+                            <textarea class="form-control" id="descripcionProblema" name="descripcionProblema"
+                                      rows="4" required
+                                      placeholder="Describe detalladamente el problema o servicio requerido..."></textarea>
+                            <small class="text-muted">Proporcione la mayor cantidad de detalles posible</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="prioridad" class="form-label">
+                                    Prioridad <span class="required-mark">*</span>
+                                </label>
+                                <select class="form-select" id="prioridad" name="prioridad" required>
+                                    <option value="NORMAL" selected>Normal</option>
+                                    <option value="BAJA">Baja</option>
+                                    <option value="ALTA">Alta</option>
+                                    <option value="URGENTE">Urgente</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="costoEstimado" class="form-label">Costo Estimado (S/.)</label>
+                                <input type="number" class="form-control" id="costoEstimado" name="costoEstimado"
+                                       step="0.01" min="0" placeholder="0.00">
+                                <small class="text-muted">Opcional</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="tecnicoId" class="form-label">Técnico Asignado</label>
+                                <select class="form-select" id="tecnicoId" name="tecnicoId">
+                                    <option value="">Sin asignar</option>
+                                </select>
+                                <small class="text-muted">Opcional</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="/dashboard" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">
+                        <i class="fas fa-save me-2"></i>Crear Orden de Servicio
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = '/api';
+
+        // Cargar vehículos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarVehiculos();
+            cargarTecnicos();
+        });
+
+        // Función para cargar vehículos
+        async function cargarVehiculos() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/vehiculos`);
+                const data = await response.json();
+
+                const selectVehiculo = document.getElementById('vehiculoId');
+                selectVehiculo.innerHTML = '<option value="">Seleccione un vehículo...</option>';
+
+                // Verificar si hay datos disponibles (status 200 y data presente)
+                if (data.data && Array.isArray(data.data)) {
+                    data.data.forEach(vehiculo => {
+                        const option = document.createElement('option');
+                        option.value = vehiculo.vehiculoId;
+                        option.textContent = `${vehiculo.placa} - ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.año})`;
+                        option.dataset.info = JSON.stringify(vehiculo);
+                        selectVehiculo.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar vehículos:', error);
+                mostrarAlerta('Error al cargar la lista de vehículos', 'danger');
+            }
+        }
+
+        // Función para cargar técnicos
+        async function cargarTecnicos() {
+            try {
+                // Intentar cargar desde el nuevo endpoint
+                const response = await fetch(`${API_BASE_URL}/tecnicos`);
+
+                if (!response.ok) {
+                    // Si no existe el endpoint, dejar sin técnicos
+                    console.log('Endpoint de técnicos no disponible');
+                    return;
+                }
+
+                const data = await response.json();
+
+                const selectTecnico = document.getElementById('tecnicoId');
+                selectTecnico.innerHTML = '<option value="">Sin asignar</option>';
+
+                // Verificar si hay datos disponibles (status 200 y data presente)
+                if (data.data && Array.isArray(data.data)) {
+                    data.data.forEach(tecnico => {
+                        if (tecnico.estadoActivo) {
+                            const option = document.createElement('option');
+                            option.value = tecnico.tecnicoId;
+                            option.textContent = `${tecnico.nombres} ${tecnico.apellidos} - ${tecnico.especialidad}`;
+                            selectTecnico.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.log('No se pudieron cargar los técnicos:', error);
+            }
+        }
+
+        // Actualizar información del vehículo seleccionado
+        document.getElementById('vehiculoId').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const vehiculoInfo = document.getElementById('vehiculoInfo');
+
+            if (selectedOption.dataset.info) {
+                const vehiculo = JSON.parse(selectedOption.dataset.info);
+                vehiculoInfo.value = `${vehiculo.color || 'N/A'} | ${vehiculo.kilometraje || 'N/A'} km`;
+            } else {
+                vehiculoInfo.value = '';
+            }
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('formNuevaOrden').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creando...';
+
+            try {
+                // Preparar datos
+                const formData = {
+                    vehiculoId: parseInt(document.getElementById('vehiculoId').value),
+                    descripcionProblema: document.getElementById('descripcionProblema').value,
+                    prioridad: document.getElementById('prioridad').value,
+                    costoEstimado: document.getElementById('costoEstimado').value ?
+                                   parseFloat(document.getElementById('costoEstimado').value) : null,
+                    tecnicoId: document.getElementById('tecnicoId').value ?
+                               parseInt(document.getElementById('tecnicoId').value) : null
+                };
+
+                // Enviar a la API
+                const response = await fetch(`${API_BASE_URL}/ordenes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success || response.ok) {
+                    mostrarAlerta('Orden de servicio creada exitosamente. Orden #' + (result.data?.ordenId || ''), 'success');
+
+                    // Limpiar formulario
+                    document.getElementById('formNuevaOrden').reset();
+                    document.getElementById('vehiculoInfo').value = '';
+
+                    // Redirigir al dashboard después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Error al crear la orden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarAlerta('Error al crear la orden de servicio: ' + error.message, 'danger');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fas fa-save me-2"></i>Crear Orden de Servicio';
+            }
+        });
+
+        // Función para mostrar alertas
+        function mostrarAlerta(mensaje, tipo) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${tipo} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+
+            // Auto-cerrar después de 5 segundos
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
