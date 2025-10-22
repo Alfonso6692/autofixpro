@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Controlador REST para gestionar las operaciones de los vehículos.
+ * Proporciona endpoints para registrar, consultar y gestionar vehículos y su historial de servicios.
+ */
 @RestController
 @RequestMapping("/api/vehiculos")
 @CrossOrigin(origins = "*")
@@ -24,6 +28,10 @@ public class VehiculoController extends BaseController {
     @Autowired
     private ClienteService clienteService;
 
+    /**
+     * Obtiene una lista de todos los vehículos registrados.
+     * @return ResponseEntity con la lista de vehículos.
+     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> listarVehiculos() {
         try {
@@ -34,7 +42,13 @@ public class VehiculoController extends BaseController {
         }
     }
 
-    // CU07: Registrar vehículo
+    /**
+     * Registra un nuevo vehículo para un cliente existente.
+     * Corresponde al CU07: Registrar vehículo.
+     * @param clienteId El ID del cliente al que pertenece el vehículo.
+     * @param vehiculo El vehículo a registrar.
+     * @return ResponseEntity con el vehículo registrado.
+     */
     @PostMapping("/cliente/{clienteId}")
     public ResponseEntity<Map<String, Object>> registrarVehiculo(@PathVariable Long clienteId, @RequestBody Vehiculo vehiculo) {
         try {
@@ -50,7 +64,12 @@ public class VehiculoController extends BaseController {
         }
     }
 
-    // CU08: Consultar estado del vehículo
+    /**
+     * Consulta el estado de un vehículo por su placa.
+     * Corresponde al CU08: Consultar estado del vehículo.
+     * @param placa La placa del vehículo a consultar.
+     * @return ResponseEntity con la información del estado del vehículo.
+     */
     @GetMapping("/placa/{placa}/estado")
     public ResponseEntity<Map<String, Object>> consultarEstadoVehiculo(@PathVariable String placa) {
         try {
@@ -65,7 +84,12 @@ public class VehiculoController extends BaseController {
         }
     }
 
-    // CU09: Ver historial de servicio
+    /**
+     * Obtiene el historial de servicios de un vehículo.
+     * Corresponde al CU09: Ver historial de servicio.
+     * @param id El ID del vehículo.
+     * @return ResponseEntity con el historial de servicios del vehículo.
+     */
     @GetMapping("/{id}/historial")
     public ResponseEntity<Map<String, Object>> obtenerHistorialServicios(@PathVariable Long id) {
         try {
@@ -80,6 +104,11 @@ public class VehiculoController extends BaseController {
         }
     }
 
+    /**
+     * Obtiene un vehículo por su ID.
+     * @param id El ID del vehículo.
+     * @return ResponseEntity con el vehículo encontrado.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> obtenerVehiculo(@PathVariable Long id) {
         try {
@@ -94,6 +123,11 @@ public class VehiculoController extends BaseController {
         }
     }
 
+    /**
+     * Obtiene todos los vehículos de un cliente específico.
+     * @param clienteId El ID del cliente.
+     * @return ResponseEntity con la lista de vehículos del cliente.
+     */
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<Map<String, Object>> obtenerVehiculosPorCliente(@PathVariable Long clienteId) {
         try {
@@ -104,6 +138,12 @@ public class VehiculoController extends BaseController {
         }
     }
 
+    /**
+     * Actualiza la información de un vehículo existente.
+     * @param id El ID del vehículo a actualizar.
+     * @param vehiculo Los nuevos datos del vehículo.
+     * @return ResponseEntity con el vehículo actualizado.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> actualizarVehiculo(@PathVariable Long id, @RequestBody Vehiculo vehiculo) {
         try {

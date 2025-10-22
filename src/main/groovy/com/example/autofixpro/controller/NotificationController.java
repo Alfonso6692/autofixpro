@@ -7,19 +7,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controlador REST para gestionar el envío de notificaciones.
+ */
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
-    // 2. Inyecta SnsService, no NotificacionServicio
+
     private final NotificacionServicio notificacionServicio;
     private final OrdenServicioService ordenServicioService; // Para buscar la orden
 
+    /**
+     * Constructor para inyectar los servicios de notificación y orden de servicio.
+     * @param notificacionServicio El servicio para enviar notificaciones.
+     * @param ordenServicioService El servicio para obtener datos de las órdenes de servicio.
+     */
     @Autowired
     public NotificationController(NotificacionServicio notificacionServicio, OrdenServicioService ordenServicioService) {
         this.notificacionServicio = notificacionServicio;
         this.ordenServicioService = ordenServicioService;
     }
-    // Endpoint para probar la notificación de "trabajo completado"
+
+    /**
+     * Endpoint para enviar una notificación de "trabajo completado".
+     * Busca la orden de servicio por su ID y, si la encuentra, invoca al servicio de notificación.
+     * @param ordenId El ID de la orden de servicio completada.
+     * @return ResponseEntity con un mensaje de éxito o un error 404 si la orden no se encuentra.
+     */
     @PostMapping("/orden-completada/{ordenId}")
     public ResponseEntity<String> notificarOrdenCompletada(@PathVariable Long ordenId) {
         // 1. Busca la orden de servicio en la base de datos
@@ -34,4 +48,3 @@ public class NotificationController {
         return ResponseEntity.ok("Notificación de orden completada enviada para la orden #" + ordenId);
     }
 }
-

@@ -2,26 +2,25 @@ package com.example.autofixpro.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * Controlador principal para manejar las rutas de inicio
- * Redirige automáticamente al dashboard cuando se accede a la raíz
+ * Controlador para las páginas de inicio de la aplicación.
  */
 @Controller
 public class HomeController {
 
     /**
-     * Ruta raíz - Redirige al dashboard
+     * Muestra la página de inicio principal.
+     * @return El nombre de la vista 'index'.
      */
     @GetMapping("/")
     public String home() {
         return "index";
     }
 
-
     /**
-     * Ruta alternativa para el index
+     * Redirige desde /index al dashboard de la aplicación.
+     * @return Una cadena de redirección a '/dashboard'.
      */
     @GetMapping("/index")
     public String index() {

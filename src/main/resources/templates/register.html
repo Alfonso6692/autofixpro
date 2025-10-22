@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title}">AutoFixPro - Registrar Cliente</title>
+    <title th:text="${title}">AutoFixPro - Registrar Usuario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -16,7 +16,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px 0;
         }
-        
+
         .register-container {
             background: white;
             border-radius: 20px;
@@ -26,40 +26,40 @@
             width: 100%;
             margin: 20px;
         }
-        
+
         .register-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 30px;
             text-align: center;
             color: white;
         }
-        
+
         .register-header i {
             font-size: 2.5rem;
             margin-bottom: 15px;
         }
-        
+
         .register-header h2 {
             margin: 0;
             font-weight: 300;
             font-size: 1.8rem;
         }
-        
+
         .register-header p {
             margin: 10px 0 0 0;
             opacity: 0.9;
             font-size: 0.9rem;
         }
-        
+
         .register-form {
             padding: 40px 30px;
         }
-        
+
         .form-group {
             margin-bottom: 25px;
             position: relative;
         }
-        
+
         .form-control {
             border: none;
             border-bottom: 2px solid #e0e0e0;
@@ -70,13 +70,13 @@
             font-size: 16px;
             transition: all 0.3s ease;
         }
-        
+
         .form-control:focus {
             border-bottom-color: #667eea;
             box-shadow: none;
             background: transparent;
         }
-        
+
         .form-icon {
             position: absolute;
             left: 10px;
@@ -84,7 +84,7 @@
             color: #999;
             font-size: 16px;
         }
-        
+
         .btn-register {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
@@ -97,13 +97,13 @@
             transition: all 0.3s ease;
             margin-top: 20px;
         }
-        
+
         .btn-register:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
             color: white;
         }
-        
+
         .btn-back {
             background: transparent;
             border: 2px solid #667eea;
@@ -116,12 +116,12 @@
             transition: all 0.3s ease;
             margin-top: 15px;
         }
-        
+
         .btn-back:hover {
             background: #667eea;
             color: white;
         }
-        
+
         .error-message {
             background: #fff5f5;
             border: 1px solid #feb2b2;
@@ -133,37 +133,42 @@
             display: flex;
             align-items: center;
         }
-        
+
         .error-message i {
             margin-right: 10px;
             font-size: 16px;
         }
-        
-        .form-row {
-            display: flex;
-            gap: 15px;
+
+        .password-strength {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #999;
         }
-        
-        .form-row .form-group {
-            flex: 1;
+
+        .password-match {
+            font-size: 12px;
+            margin-top: 5px;
         }
-        
+
+        .password-match.valid {
+            color: #48bb78;
+        }
+
+        .password-match.invalid {
+            color: #f56565;
+        }
+
         @media (max-width: 480px) {
             .register-container {
                 margin: 10px;
             }
-            
+
             .register-header {
                 padding: 25px 20px;
             }
-            
+
             .register-form {
                 padding: 30px 20px;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 0;
             }
         }
     </style>
@@ -172,79 +177,89 @@
     <div class="register-container">
         <div class="register-header">
             <i class="fas fa-user-plus"></i>
-            <h2>Registrar Cliente</h2>
-            <p>Complete los datos del nuevo cliente</p>
+            <h2>Registrar Usuario</h2>
+            <p>Crea tu cuenta en AutoFixPro</p>
         </div>
-        
+
         <div class="register-form">
             <!-- Mensaje de error -->
             <div th:if="${error}" class="error-message">
                 <i class="fas fa-exclamation-triangle"></i>
-                <span th:text="${error}">Error al registrar cliente</span>
+                <span th:text="${error}">Error al registrar usuario</span>
             </div>
-            
-            <form th:action="@{/register}" th:object="${cliente}" method="post">
-                <div class="form-row">
-                    <div class="form-group">
-                        <i class="fas fa-user form-icon"></i>
-                        <input type="text" 
-                               class="form-control" 
-                               th:field="*{nombres}"
-                               placeholder="Nombres" 
-                               required 
-                               maxlength="100">
-                    </div>
-                    
-                    <div class="form-group">
-                        <i class="fas fa-user form-icon"></i>
-                        <input type="text" 
-                               class="form-control" 
-                               th:field="*{apellidos}"
-                               placeholder="Apellidos" 
-                               required 
-                               maxlength="100">
-                    </div>
-                </div>
-                
+
+            <form th:action="@{/register}" th:object="${usuario}" method="post">
                 <div class="form-group">
-                    <i class="fas fa-id-card form-icon"></i>
-                    <input type="text" 
-                           class="form-control" 
-                           th:field="*{dni}"
-                           placeholder="DNI / Cédula" 
-                           required 
-                           maxlength="20"
-                           pattern="[0-9]{8,20}"
-                           title="Ingrese un DNI válido (solo números, 8-20 dígitos)">
+                    <i class="fas fa-user form-icon"></i>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{username}"
+                           placeholder="Nombre de usuario"
+                           required
+                           minlength="4"
+                           maxlength="50">
                 </div>
-                
+
                 <div class="form-group">
-                    <i class="fas fa-phone form-icon"></i>
-                    <input type="tel" 
-                           class="form-control" 
-                           th:field="*{telefono}"
-                           placeholder="Teléfono" 
-                           required 
-                           maxlength="20"
-                           pattern="[0-9+\-\s\(\)]+"
-                           title="Ingrese un número de teléfono válido">
-                </div>
-                
-                <div class="form-group">
-                    <i class="fas fa-envelope form-icon"></i>
-                    <input type="email" 
-                           class="form-control" 
-                           th:field="*{email}"
-                           placeholder="Correo Electrónico" 
-                           required 
+                    <i class="fas fa-id-badge form-icon"></i>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{nombre}"
+                           placeholder="Nombre completo"
+                           required
                            maxlength="100">
                 </div>
-                
-                <button type="submit" class="btn btn-register">
+
+                <div class="form-group">
+                    <i class="fas fa-envelope form-icon"></i>
+                    <input type="email"
+                           class="form-control"
+                           th:field="*{email}"
+                           placeholder="Correo Electrónico"
+                           required
+                           maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-phone form-icon"></i>
+                    <input type="tel"
+                           class="form-control"
+                           th:field="*{telefono}"
+                           placeholder="Teléfono (opcional)"
+                           maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-lock form-icon"></i>
+                    <input type="password"
+                           class="form-control"
+                           th:field="*{password}"
+                           id="password"
+                           placeholder="Contraseña"
+                           required
+                           minlength="6"
+                           autocomplete="new-password">
+                    <div id="passwordStrength" class="password-strength"></div>
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-lock form-icon"></i>
+                    <input type="password"
+                           class="form-control"
+                           name="confirmPassword"
+                           id="confirmPassword"
+                           placeholder="Confirmar contraseña"
+                           required
+                           minlength="6"
+                           autocomplete="new-password">
+                    <div id="passwordMatch" class="password-match"></div>
+                </div>
+
+                <button type="submit" class="btn btn-register" id="submitBtn">
                     <i class="fas fa-user-plus me-2"></i>
-                    Registrar Cliente
+                    Registrar Usuario
                 </button>
-                
+
                 <a href="/login" class="btn btn-back">
                     <i class="fas fa-arrow-left me-2"></i>
                     Volver al Login
@@ -256,15 +271,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Auto-focus en el primer campo
-        document.querySelector('input[name="nombres"]').focus();
-        
+        document.querySelector('input[name="username"]').focus();
+
         // Efecto de enfoque en los inputs
         document.querySelectorAll('.form-control').forEach(input => {
             input.addEventListener('focus', function() {
                 this.style.borderBottomColor = '#667eea';
                 this.previousElementSibling.style.color = '#667eea';
             });
-            
+
             input.addEventListener('blur', function() {
                 if (!this.value) {
                     this.style.borderBottomColor = '#e0e0e0';
@@ -273,15 +288,51 @@
             });
         });
 
-        // Validación en tiempo real del DNI
-        document.querySelector('input[name="dni"]').addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
+        // Validación de fortaleza de contraseña
+        const passwordInput = document.getElementById('password');
+        const passwordStrength = document.getElementById('passwordStrength');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = '';
+
+            if (password.length === 0) {
+                passwordStrength.textContent = '';
+            } else if (password.length < 6) {
+                passwordStrength.textContent = 'Contraseña muy corta (mínimo 6 caracteres)';
+                passwordStrength.style.color = '#f56565';
+            } else if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                passwordStrength.textContent = 'Contraseña fuerte ✓';
+                passwordStrength.style.color = '#48bb78';
+            } else if (password.length >= 6) {
+                passwordStrength.textContent = 'Contraseña aceptable';
+                passwordStrength.style.color = '#ed8936';
+            }
+
+            checkPasswordMatch();
         });
 
-        // Validación del teléfono
-        document.querySelector('input[name="telefono"]').addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9+\-\s\(\)]/g, '');
-        });
+        // Validación de coincidencia de contraseñas
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordMatch = document.getElementById('passwordMatch');
+
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (confirmPassword.length === 0) {
+                passwordMatch.textContent = '';
+                passwordMatch.className = 'password-match';
+            } else if (password === confirmPassword) {
+                passwordMatch.textContent = 'Las contraseñas coinciden ✓';
+                passwordMatch.className = 'password-match valid';
+            } else {
+                passwordMatch.textContent = 'Las contraseñas no coinciden';
+                passwordMatch.className = 'password-match invalid';
+            }
+        }
     </script>
 </body>
 </html>

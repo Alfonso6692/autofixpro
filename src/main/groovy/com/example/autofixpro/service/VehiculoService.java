@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Servicio para gestionar la lógica de negocio de los vehículos.
+ * Proporciona operaciones CRUD y métodos específicos para registrar, consultar y gestionar vehículos.
+ */
 @Service
 @Transactional
 public class VehiculoService implements GenericService<Vehiculo, Long> {
@@ -54,30 +58,63 @@ public class VehiculoService implements GenericService<Vehiculo, Long> {
 
     // Métodos específicos del negocio
 
-    // CU07: Registrar vehículo
+    /**
+     * Registra un nuevo vehículo y lo asocia a un cliente.
+     * Corresponde al CU07: Registrar vehículo.
+     * @param vehiculo El vehículo a registrar.
+     * @param cliente El cliente propietario del vehículo.
+     * @return El vehículo guardado.
+     */
     public Vehiculo registrarVehiculo(Vehiculo vehiculo, Cliente cliente) {
         vehiculo.setCliente(cliente);
         return vehiculoDAO.save(vehiculo);
     }
 
-    // CU08: Consultar estado del vehículo
+    /**
+     * Consulta el estado de un vehículo por su número de placa.
+     * Carga la información de las órdenes y sus estados asociados.
+     * Corresponde al CU08: Consultar estado del vehículo.
+     * @param placa La placa del vehículo a consultar.
+     * @return Un Optional que contiene el vehículo con su información de estado.
+     */
     public Optional<Vehiculo> consultarEstadoPorPlaca(String placa) {
         return vehiculoDAO.findByPlacaWithOrdenesAndEstados(placa);
     }
 
-    // CU09: Ver historial de servicio
+    /**
+     * Obtiene el historial completo de servicios para un vehículo específico.
+     * Corresponde al CU09: Ver historial de servicio.
+     * @param vehiculoId El ID del vehículo.
+     * @return Un Optional que contiene el vehículo con su historial de servicios.
+     */
     public Optional<Vehiculo> obtenerHistorialServicios(Long vehiculoId) {
         return vehiculoDAO.findByIdWithHistorialServicios(vehiculoId);
     }
 
+    /**
+     * Busca un vehículo por su número de placa.
+     * @param placa La placa del vehículo a buscar.
+     * @return Un Optional que contiene el vehículo si se encuentra.
+     */
     public Optional<Vehiculo> findByPlaca(String placa) {
         return vehiculoDAO.findByPlaca(placa);
     }
 
+    /**
+     * Busca todos los vehículos pertenecientes a un cliente específico.
+     * @param clienteId El ID del cliente.
+     * @return Una lista de vehículos del cliente.
+     */
     public List<Vehiculo> findByCliente(Long clienteId) {
         return vehiculoDAO.findByClienteClienteId(clienteId);
     }
 
+    /**
+     * Busca vehículos por marca y modelo.
+     * @param marca La marca del vehículo.
+     * @param modelo El modelo del vehículo.
+     * @return Una lista de vehículos que coinciden con la marca y el modelo.
+     */
     public List<Vehiculo> findByMarcaAndModelo(String marca, String modelo) {
         return vehiculoDAO.findByMarcaAndModelo(marca, modelo);
     }

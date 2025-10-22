@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Controlador REST para gestionar las operaciones CRUD de los clientes.
+ * Proporciona endpoints para listar, obtener, crear, actualizar y eliminar clientes.
+ */
 @RestController
 @RequestMapping("/api/clientes")
 @CrossOrigin(origins = "*")
@@ -19,7 +23,11 @@ public class ClienteController extends BaseController {
     @Autowired
     private ClienteService clienteService;
 
-    // CU04: Gestionar usuarios (parte de clientes)
+    /**
+     * Obtiene una lista de todos los clientes.
+     * Corresponde al CU04: Gestionar usuarios.
+     * @return ResponseEntity con la lista de clientes.
+     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> listarClientes() {
         try {
@@ -30,6 +38,11 @@ public class ClienteController extends BaseController {
         }
     }
 
+    /**
+     * Obtiene un cliente por su ID.
+     * @param id El ID del cliente.
+     * @return ResponseEntity con el cliente encontrado o un error si no existe.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> obtenerCliente(@PathVariable Long id) {
         try {
@@ -44,6 +57,11 @@ public class ClienteController extends BaseController {
         }
     }
 
+    /**
+     * Crea un nuevo cliente.
+     * @param cliente El cliente a crear.
+     * @return ResponseEntity con el cliente creado.
+     */
     @PostMapping
     public ResponseEntity<Map<String, Object>> crearCliente(@RequestBody Cliente cliente) {
         try {
@@ -54,6 +72,12 @@ public class ClienteController extends BaseController {
         }
     }
 
+    /**
+     * Actualiza un cliente existente.
+     * @param id El ID del cliente a actualizar.
+     * @param cliente Los nuevos datos del cliente.
+     * @return ResponseEntity con el cliente actualizado.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> actualizarCliente(@PathVariable Long id, @RequestBody Cliente cliente) {
         try {
@@ -69,6 +93,11 @@ public class ClienteController extends BaseController {
         }
     }
 
+    /**
+     * Elimina un cliente por su ID.
+     * @param id El ID del cliente a eliminar.
+     * @return ResponseEntity con un mensaje de éxito o error.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> eliminarCliente(@PathVariable Long id) {
         try {
@@ -83,7 +112,12 @@ public class ClienteController extends BaseController {
         }
     }
 
-    // CU01: Consultar estado del vehículo (desde cliente)
+    /**
+     * Consulta los vehículos de un cliente específico.
+     * Corresponde al CU01: Consultar estado del vehículo.
+     * @param id El ID del cliente.
+     * @return ResponseEntity con la lista de vehículos del cliente.
+     */
     @GetMapping("/{id}/vehiculos")
     public ResponseEntity<Map<String, Object>> consultarVehiculosCliente(@PathVariable Long id) {
         try {
@@ -98,6 +132,11 @@ public class ClienteController extends BaseController {
         }
     }
 
+    /**
+     * Busca clientes por su nombre.
+     * @param nombre El nombre a buscar.
+     * @return ResponseEntity con la lista de clientes que coinciden con el nombre.
+     */
     @GetMapping("/buscar")
     public ResponseEntity<Map<String, Object>> buscarClientesPorNombre(@RequestParam String nombre) {
         try {
@@ -108,6 +147,11 @@ public class ClienteController extends BaseController {
         }
     }
 
+    /**
+     * Busca un cliente por su DNI.
+     * @param dni El DNI del cliente a buscar.
+     * @return ResponseEntity con el cliente encontrado o un error si no existe.
+     */
     @GetMapping("/dni/{dni}")
     public ResponseEntity<Map<String, Object>> buscarClientePorDni(@PathVariable String dni) {
         try {

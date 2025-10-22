@@ -15,6 +15,16 @@ java {
     }
 }
 
+// Configurar el compilador de Java para preservar nombres de parámetros
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-parameters'
+}
+
+// Configurar el compilador de Groovy para preservar nombres de parámetros
+tasks.withType(GroovyCompile) {
+    options.compilerArgs << '-parameters'
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
