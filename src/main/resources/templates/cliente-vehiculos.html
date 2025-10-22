@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">AutoFixPro - Vehículos del Cliente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .vehicle-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4 mb-5">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success rounded mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/dashboard">
+                    <i class="fas fa-wrench me-2"></i>AutoFixPro
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard"><i class="fas fa-home me-1"></i>Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="/logout" style="display: inline;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="nav-link btn btn-link text-white" style="border: none; background: none;">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-car text-success me-2"></i>Vehículos del Cliente</h2>
+                <p class="text-muted mb-0">
+                    Cliente: <strong th:text="${cliente.nombres + ' ' + cliente.apellidos}">Juan Pérez</strong>
+                    <span class="badge bg-primary ms-2" th:text="'DNI: ' + ${cliente.dni}">DNI: 12345678</span>
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/clientes/{id}(id=${cliente.clienteId})}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-user me-2"></i>Ver Cliente
+                </a>
+                <a href="/dashboard" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Vehicles Section -->
+        <div class="row">
+            <!-- No vehicles message -->
+            <div class="col-12" th:if="${#lists.isEmpty(vehiculos)}">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-car-side fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay vehículos registrados</h4>
+                        <p class="text-muted">Este cliente aún no tiene vehículos asociados</p>
+                        <button class="btn btn-success mt-3" onclick="alert('Funcionalidad en desarrollo')">
+                            <i class="fas fa-plus me-2"></i>Registrar Primer Vehículo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicles Grid -->
+            <div class="col-md-6 col-lg-4 mb-4" th:each="vehiculo : ${vehiculos}">
+                <div class="card shadow-sm vehicle-card h-100" onclick="alert('Ver detalle del vehículo - En desarrollo')">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-car me-2"></i>
+                            <span th:text="${vehiculo.marca + ' ' + vehiculo.modelo}">Toyota Corolla</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <div class="p-2 bg-light rounded">
+                                    <small class="text-muted">Placa</small>
+                                    <div class="fw-bold" th:text="${vehiculo.placa}">ABC-123</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 bg-light rounded">
+                                    <small class="text-muted">Año</small>
+                                    <div class="fw-bold" th:text="${vehiculo.año}">2020</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 bg-light rounded">
+                                    <small class="text-muted">Color</small>
+                                    <div class="fw-bold" th:text="${vehiculo.color != null ? vehiculo.color : 'No especificado'}">Blanco</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-2 bg-light rounded">
+                                    <small class="text-muted">Kilometraje</small>
+                                    <div class="fw-bold">
+                                        <span th:text="${vehiculo.kilometraje != null ? vehiculo.kilometraje : 'No especificado'}">50000</span>
+                                        <span th:if="${vehiculo.kilometraje != null}"> km</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); alert('Ver historial - En desarrollo')">
+                                <i class="fas fa-history me-1"></i>Ver Historial
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); alert('Nueva orden - En desarrollo')">
+                                <i class="fas fa-plus me-1"></i>Nueva Orden
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="row mt-4" th:if="${!#lists.isEmpty(vehiculos)}">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Resumen</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <i class="fas fa-car fa-2x text-success mb-2"></i>
+                                <h4 th:text="${vehiculos.size()}">0</h4>
+                                <p class="text-muted mb-0">Total Vehículos</p>
+                            </div>
+                            <div class="col-md-4">
+                                <i class="fas fa-clipboard-list fa-2x text-warning mb-2"></i>
+                                <h4>0</h4>
+                                <p class="text-muted mb-0">Órdenes Activas</p>
+                            </div>
+                            <div class="col-md-4">
+                                <i class="fas fa-check-circle fa-2x text-primary mb-2"></i>
+                                <h4>0</h4>
+                                <p class="text-muted mb-0">Servicios Completados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-success w-100" onclick="alert('Registrar vehículo - En desarrollo')">
+                                    <i class="fas fa-plus me-2"></i>Nuevo Vehículo
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-warning w-100" onclick="alert('Nueva orden - En desarrollo')">
+                                    <i class="fas fa-clipboard-list me-2"></i>Nueva Orden
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-info w-100" onclick="alert('Ver reportes - En desarrollo')">
+                                    <i class="fas fa-chart-bar me-2"></i>Ver Reportes
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-primary w-100" onclick="window.print()">
+                                    <i class="fas fa-print me-2"></i>Imprimir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  autofixpro-app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - RDS_HOSTNAME=jdbc:mysql://mysql-db:3306/autofixpro
+      - RDS_USERNAME=autofixpro_user
+      - RDS_PASSWORD=autofixpro_pass
+    depends_on:
+      - mysql-db
+    networks:
+      - autofixpro-network
+
+  mysql-db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=autofixpro
+      - MYSQL_USER=autofixpro_user
+      - MYSQL_PASSWORD=autofixpro_pass
+      - MYSQL_ROOT_PASSWORD=root_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - autofixpro-network
+
+volumes:
+  mysql-data:
+
+networks:
+  autofixpro-network:
+    driver: bridge

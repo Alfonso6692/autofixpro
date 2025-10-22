@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">AutoFixPro - Vehículos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .vehicle-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .badge-tipo {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar text-white p-3">
+                <div class="d-flex align-items-center mb-4">
+                    <i class="fas fa-wrench fa-2x me-2"></i>
+                    <h4 class="mb-0">AutoFixPro</h4>
+                </div>
+
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white" href="/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                    <a class="nav-link text-white" href="/api/clientes"><i class="fas fa-users me-2"></i>Clientes</a>
+                    <a class="nav-link text-white active" href="/vehiculos"><i class="fas fa-car me-2"></i>Vehículos</a>
+                    <a class="nav-link text-white" href="#"><i class="fas fa-clipboard-list me-2"></i>Órdenes</a>
+                    <a class="nav-link text-white" href="#"><i class="fas fa-tools me-2"></i>Servicios</a>
+                    <a class="nav-link text-white" href="/sms/cliente"><i class="fas fa-sms me-2"></i>Enviar SMS</a>
+                    <div class="nav-text text-white-50 mt-3"><i class="fas fa-database me-2"></i>MySQL AWS RDS</div>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content p-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2><i class="fas fa-car me-2"></i>Gestión de Vehículos</h2>
+                        <p class="text-muted mb-0">Listado completo de vehículos registrados en el sistema</p>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="text-muted me-3">
+                            <i class="fas fa-calendar me-1"></i>
+                            <span id="currentDate"></span>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i> Admin
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user-cog me-2"></i>Perfil</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="/logout" style="display: inline;">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button type="submit" class="dropdown-item" style="cursor: pointer; border: none; background: none; width: 100%; text-align: left;">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-car fa-3x text-success mb-3"></i>
+                                <h5 class="card-title">Total Vehículos</h5>
+                                <p class="card-text h3 text-success" th:text="${totalVehiculos}">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-palette fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Marcas</h5>
+                                <p class="card-text h3 text-primary" th:text="${#sets.size(#lists.stream(vehiculos).map(v -> v.marca).toSet())}">0</p>
+                                <small class="text-muted">Diferentes</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                                <h5 class="card-title">Con Propietario</h5>
+                                <p class="card-text h3 text-info" th:text="${#lists.size(#lists.select(vehiculos, v -> v.cliente != null))}">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-success w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-car me-2"></i>Registrar Vehículo
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-primary w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-search me-2"></i>Buscar por Placa
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-warning w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-filter me-2"></i>Filtrar por Tipo
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-info w-100" onclick="alert('Funcionalidad en desarrollo')">
+                                            <i class="fas fa-file-export me-2"></i>Exportar Lista
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicles Grid -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Vehículos Registrados</h5>
+                                <span class="badge bg-success" th:text="${totalVehiculos} + ' vehículos'">0 vehículos</span>
+                            </div>
+                            <div class="card-body">
+                                <!-- Empty State -->
+                                <div th:if="${#lists.isEmpty(vehiculos)}" class="text-center py-5">
+                                    <i class="fas fa-car-side fa-5x text-muted mb-3"></i>
+                                    <h4 class="text-muted">No hay vehículos registrados</h4>
+                                    <p class="text-muted">Comienza registrando el primer vehículo</p>
+                                    <button class="btn btn-success mt-3" onclick="alert('Funcionalidad en desarrollo')">
+                                        <i class="fas fa-plus me-2"></i>Registrar Primer Vehículo
+                                    </button>
+                                </div>
+
+                                <!-- Vehicle Cards -->
+                                <div th:if="${!#lists.isEmpty(vehiculos)}" class="row">
+                                    <div class="col-md-6 col-lg-4 mb-4" th:each="vehiculo : ${vehiculos}">
+                                        <div class="card vehicle-card h-100 border-0 shadow-sm">
+                                            <div class="card-header bg-primary text-white text-center">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-car me-2"></i>
+                                                    <span th:text="${vehiculo.placa}">ABC-123</span>
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <h6 class="card-title mb-2">
+                                                        <span th:text="${vehiculo.marca}">Toyota</span>
+                                                        <span th:text="${vehiculo.modelo}">Corolla</span>
+                                                    </h6>
+                                                </div>
+
+                                                <ul class="list-unstyled mb-3">
+                                                    <li><i class="fas fa-calendar text-muted me-2"></i><strong>Año:</strong> <span th:text="${vehiculo.año}">2020</span></li>
+                                                    <li><i class="fas fa-palette text-muted me-2"></i><strong>Color:</strong> <span th:text="${vehiculo.color != null ? vehiculo.color : 'No especificado'}">Rojo</span></li>
+                                                    <li><i class="fas fa-tachometer-alt text-muted me-2"></i><strong>Kilometraje:</strong> <span th:text="${vehiculo.kilometraje != null ? vehiculo.kilometraje + ' km' : 'No especificado'}">50000 km</span></li>
+                                                    <li><i class="fas fa-user text-muted me-2"></i><strong>Propietario:</strong> <span th:text="${vehiculo.cliente != null ? vehiculo.cliente.nombres + ' ' + vehiculo.cliente.apellidos : 'No asignado'}">Cliente</span></li>
+                                                </ul>
+
+                                                <div class="d-flex gap-2">
+                                                    <a th:href="@{/api/vehiculos/{id}(id=${vehiculo.vehiculoId})}" class="btn btn-sm btn-outline-primary flex-fill" title="Ver detalles">
+                                                        <i class="fas fa-eye me-1"></i>Detalles
+                                                    </a>
+                                                    <a th:href="@{/api/vehiculos/{id}/historial(id=${vehiculo.vehiculoId})}" class="btn btn-sm btn-outline-info flex-fill" title="Ver historial">
+                                                        <i class="fas fa-history me-1"></i>Historial
+                                                    </a>
+                                                    <button class="btn btn-sm btn-outline-warning" title="Nueva orden" onclick="alert('Funcionalidad en desarrollo')">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Endpoints Info -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-code me-2"></i>API Endpoints Disponibles</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-success">Vehículos</h6>
+                                        <ul class="list-unstyled">
+                                            <li><code>GET /api/vehiculos</code> - Listar todos</li>
+                                            <li><code>POST /api/vehiculos/cliente/{clienteId}</code> - Registrar vehículo</li>
+                                            <li><code>GET /api/vehiculos/{id}</code> - Obtener por ID</li>
+                                            <li><code>PUT /api/vehiculos/{id}</code> - Actualizar vehículo</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-info">Consultas Especiales</h6>
+                                        <ul class="list-unstyled">
+                                            <li><code>GET /api/vehiculos/placa/{placa}/estado</code> - Consultar estado</li>
+                                            <li><code>GET /api/vehiculos/{id}/historial</code> - Historial de servicios</li>
+                                            <li><code>GET /api/vehiculos/cliente/{clienteId}</code> - Vehículos por cliente</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mostrar fecha actual
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    </script>
+</body>
+</html>

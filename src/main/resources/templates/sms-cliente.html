@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoFixPro - Enviar SMS a Cliente</title>
+    <link rel="stylesheet" href="/static/css/sms-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📱 AutoFixPro SMS</h1>
+            <p>Enviar mensajes SMS a clientes registrados</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Panel de búsqueda de cliente -->
+            <div class="search-panel">
+                <h2>🔍 Buscar Cliente</h2>
+                <div class="search-form">
+                    <div class="input-group">
+                        <label for="searchInput">Buscar por DNI, Nombre o Teléfono:</label>
+                        <input type="text" id="searchInput" placeholder="Ej: 12345678, Juan Pérez, +56912345678">
+                        <button type="button" id="searchBtn" class="btn btn-search">Buscar</button>
+                    </div>
+                </div>
+
+                <!-- Lista de clientes -->
+                <div id="clientesList" class="clientes-list"></div>
+            </div>
+
+            <!-- Panel de envío de SMS -->
+            <div class="sms-panel">
+                <h2>📨 Enviar SMS</h2>
+                <form id="smsForm" class="sms-form">
+                    <div class="cliente-selected" id="clienteSelected" style="display: none;">
+                        <div class="cliente-info">
+                            <h3 id="clienteNombre"></h3>
+                            <p><strong>DNI:</strong> <span id="clienteDni"></span></p>
+                            <p><strong>Teléfono:</strong> <span id="clienteTelefono"></span></p>
+                            <p><strong>Email:</strong> <span id="clienteEmail"></span></p>
+                        </div>
+                        <button type="button" id="clearSelection" class="btn btn-clear">Cambiar Cliente</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="mensaje">Mensaje SMS:</label>
+                        <textarea id="mensaje" name="mensaje" rows="4" placeholder="Escriba su mensaje aquí..." maxlength="160" required></textarea>
+                        <small class="char-counter">0/160 caracteres</small>
+                    </div>
+
+                    <div class="mensaje-templates">
+                        <h4>📋 Plantillas de mensajes:</h4>
+                        <div class="templates">
+                            <button type="button" class="template-btn" data-template="¡Hola! Su vehículo está listo para ser recogido en AutoFixPro. Horario: 8AM-6PM.">🚗 Vehículo Listo</button>
+                            <button type="button" class="template-btn" data-template="Su vehículo ha ingresado al taller AutoFixPro. Le notificaremos cuando esté listo.">📥 Ingreso al Taller</button>
+                            <button type="button" class="template-btn" data-template="Recordatorio: Tiene una cita programada en AutoFixPro mañana a las 10:00 AM.">⏰ Recordatorio Cita</button>
+                            <button type="button" class="template-btn" data-template="Su presupuesto está listo. Puede consultarlo en AutoFixPro o llamar al (02) 1234-5678.">💰 Presupuesto</button>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="enviarBtn" class="btn btn-primary" disabled>
+                            <span class="btn-text">📱 Enviar SMS</span>
+                            <span class="btn-loading" style="display: none;">⏳ Enviando...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Panel de resultados -->
+        <div id="resultPanel" class="result-panel" style="display: none;">
+            <div id="resultContent"></div>
+        </div>
+
+        <!-- Panel de estado SNS -->
+        <div class="status-panel">
+            <h3>🔧 Estado del Sistema</h3>
+            <div id="snsStatus" class="status-info">
+                <p>Verificando estado de AWS SNS...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let selectedCliente = null;
+        let clientes = [];
+
+        // Elementos del DOM
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clientesList = document.getElementById('clientesList');
+        const clienteSelected = document.getElementById('clienteSelected');
+        const smsForm = document.getElementById('smsForm');
+        const mensaje = document.getElementById('mensaje');
+        const enviarBtn = document.getElementById('enviarBtn');
+        const resultPanel = document.getElementById('resultPanel');
+        const snsStatus = document.getElementById('snsStatus');
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClientes();
+            checkSnsStatus();
+            setupEventListeners();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            searchBtn.addEventListener('click', searchClientes);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchClientes();
+            });
+
+            document.getElementById('clearSelection').addEventListener('click', clearSelection);
+            smsForm.addEventListener('submit', enviarSMS);
+            mensaje.addEventListener('input', updateCharCounter);
+
+            // Plantillas de mensajes
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    mensaje.value = this.dataset.template;
+                    updateCharCounter();
+                });
+            });
+        }
+
+        // Cargar todos los clientes
+        async function loadClientes() {
+            try {
+                const response = await fetch('/api/clientes');
+                const responseData = await response.json();
+
+                // Verificar que la respuesta tenga la estructura esperada
+                if (responseData && responseData.data && Array.isArray(responseData.data)) {
+                    clientes = responseData.data;
+                    displayClientes(clientes);
+                } else {
+                    console.error('Respuesta inesperada del servidor:', responseData);
+                    showMessage('Error: Formato de respuesta inesperado del servidor', 'error');
+                }
+            } catch (error) {
+                console.error('Error cargando clientes:', error);
+                showMessage('Error cargando la lista de clientes', 'error');
+            }
+        }
+
+        // Buscar clientes
+        function searchClientes() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (!searchTerm) {
+                displayClientes(clientes);
+                return;
+            }
+
+            const filtered = clientes.filter(cliente =>
+                cliente.dni.toLowerCase().includes(searchTerm) ||
+                (cliente.nombres + ' ' + cliente.apellidos).toLowerCase().includes(searchTerm) ||
+                cliente.telefono.toLowerCase().includes(searchTerm)
+            );
+
+            displayClientes(filtered);
+        }
+
+        // Mostrar clientes
+        function displayClientes(clientesData) {
+            if (clientesData.length === 0) {
+                clientesList.innerHTML = '<p class="no-results">No se encontraron clientes</p>';
+                return;
+            }
+
+            clientesList.innerHTML = clientesData.map(cliente => `
+                <div class="cliente-item" onclick="selectCliente(${cliente.clienteId})">
+                    <div class="cliente-info">
+                        <h4>${cliente.nombres} ${cliente.apellidos}</h4>
+                        <p><strong>DNI:</strong> ${cliente.dni}</p>
+                        <p><strong>Teléfono:</strong> ${cliente.telefono}</p>
+                        <p><strong>Email:</strong> ${cliente.email}</p>
+                    </div>
+                    <div class="select-btn">Seleccionar</div>
+                </div>
+            `).join('');
+        }
+
+        // Seleccionar cliente
+        function selectCliente(clienteId) {
+            selectedCliente = clientes.find(c => c.clienteId === clienteId);
+            if (selectedCliente) {
+                document.getElementById('clienteNombre').textContent =
+                    `${selectedCliente.nombres} ${selectedCliente.apellidos}`;
+                document.getElementById('clienteDni').textContent = selectedCliente.dni;
+                document.getElementById('clienteTelefono').textContent = selectedCliente.telefono;
+                document.getElementById('clienteEmail').textContent = selectedCliente.email;
+
+                clienteSelected.style.display = 'block';
+                enviarBtn.disabled = false;
+
+                // Ocultar lista de clientes
+                clientesList.style.display = 'none';
+            }
+        }
+
+        // Limpiar selección
+        function clearSelection() {
+            selectedCliente = null;
+            clienteSelected.style.display = 'none';
+            enviarBtn.disabled = true;
+            clientesList.style.display = 'block';
+            searchInput.value = '';
+            displayClientes(clientes);
+        }
+
+        // Actualizar contador de caracteres
+        function updateCharCounter() {
+            const count = mensaje.value.length;
+            document.querySelector('.char-counter').textContent = `${count}/160 caracteres`;
+            document.querySelector('.char-counter').style.color = count > 160 ? '#e74c3c' : '#666';
+        }
+
+        // Enviar SMS
+        async function enviarSMS(e) {
+            e.preventDefault();
+
+            if (!selectedCliente || !mensaje.value.trim()) {
+                showMessage('Seleccione un cliente y escriba un mensaje', 'error');
+                return;
+            }
+
+            const btnText = document.querySelector('.btn-text');
+            const btnLoading = document.querySelector('.btn-loading');
+
+            // Mostrar loading
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+            enviarBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/sns/sms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        telefono: selectedCliente.telefono,
+                        mensaje: mensaje.value.trim()
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(`✅ SMS enviado exitosamente a ${selectedCliente.nombres} ${selectedCliente.apellidos}`, 'success');
+                    mensaje.value = '';
+                    updateCharCounter();
+                } else {
+                    showMessage(`❌ Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error enviando SMS:', error);
+                showMessage('❌ Error de conexión al enviar SMS', 'error');
+            } finally {
+                // Ocultar loading
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                enviarBtn.disabled = false;
+            }
+        }
+
+        // Verificar estado de SNS
+        async function checkSnsStatus() {
+            try {
+                const response = await fetch('/api/sns/status');
+                const status = await response.json();
+
+                snsStatus.innerHTML = `
+                    <p><strong>AWS SNS:</strong> ${status.snsEnabled ? '✅ Habilitado' : '❌ Deshabilitado'}</p>
+                    <p><strong>Región:</strong> us-east-2</p>
+                    <p><strong>Topic:</strong> ${status.topicArn || 'No configurado'}</p>
+                `;
+            } catch (error) {
+                snsStatus.innerHTML = '<p>❌ Error verificando estado de SNS</p>';
+            }
+        }
+
+        // Mostrar mensajes
+        function showMessage(message, type) {
+            resultPanel.style.display = 'block';
+            resultPanel.className = `result-panel ${type}`;
+            document.getElementById('resultContent').innerHTML = `
+                <div class="message ${type}">
+                    <p>${message}</p>
+                    <button onclick="hideMessage()" class="close-btn">×</button>
+                </div>
+            `;
+
+            // Auto-ocultar después de 5 segundos
+            setTimeout(hideMessage, 5000);
+        }
+
+        // Ocultar mensaje
+        function hideMessage() {
+            resultPanel.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
