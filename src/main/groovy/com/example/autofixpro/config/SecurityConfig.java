@@ -20,9 +20,12 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final UsuarioService usuarioService;
+    private final CustomAuthenticationSuccessHandler successHandler;
 
-    public SecurityConfig(@Lazy UsuarioService usuarioService) {
+    public SecurityConfig(@Lazy UsuarioService usuarioService,
+                         CustomAuthenticationSuccessHandler successHandler) {
         this.usuarioService = usuarioService;
+        this.successHandler = successHandler;
     }
 
     @Bean
@@ -57,13 +60,15 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
                 // Rutas administrativas
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                // Rutas de clientes
+                .requestMatchers("/cliente-dashboard", "/cliente/**").hasRole("USER")
                 // Todas las demás requieren autenticación
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/dashboard", true)
+                .successHandler(successHandler)
                 .failureUrl("/login?error=true")
                 .usernameParameter("username")
                 .passwordParameter("password")
