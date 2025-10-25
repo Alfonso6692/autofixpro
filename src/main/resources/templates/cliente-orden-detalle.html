@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Detalles de la Orden - AutoFixPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #21a52f;
+            --secondary-color: #80cd7c;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --dark-color: #343a40;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container-main {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .back-button {
+            background: white;
+            color: var(--dark-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .card-main {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .card-header-custom h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+
+        .badge-estado {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .estado-recibido { background: #6c757d; color: white; }
+        .estado-en_diagnostico { background: #17a2b8; color: white; }
+        .estado-en_reparacion { background: #ffc107; color: #000; }
+        .estado-en_pruebas { background: #fd7e14; color: white; }
+        .estado-completado { background: #28a745; color: white; }
+        .estado-entregado { background: #6f42c1; color: white; }
+
+        .section {
+            padding: 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .progress-custom {
+            height: 40px;
+            border-radius: 20px;
+            background: #e9ecef;
+            overflow: hidden;
+        }
+
+        .progress-bar-custom {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 1s ease;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: -38px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .timeline-content h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .vehicle-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .vehicle-icon {
+            font-size: 4rem;
+            opacity: 0.3;
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <!-- Botón de regreso -->
+        <a href="/cliente-dashboard" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Volver al Dashboard
+        </a>
+
+        <!-- Tarjeta principal -->
+        <div class="card-main">
+            <!-- Header -->
+            <div class="card-header-custom">
+                <h1>
+                    <i class="fas fa-clipboard-list me-3"></i>
+                    Orden de Servicio #<span th:text="${orden.ordenId}">001</span>
+                </h1>
+                <span class="badge-estado"
+                      th:classappend="${'estado-' + #strings.toLowerCase(#strings.replace(orden.estadoOrden, '_', '_'))}"
+                      th:text="${orden.estadoOrden}">
+                    EN REPARACIÓN
+                </span>
+            </div>
+
+            <!-- Información del Vehículo -->
+            <div class="section">
+                <div class="vehicle-info position-relative">
+                    <i class="fas fa-car vehicle-icon"></i>
+                    <h2 style="margin: 0;">
+                        <span th:text="${orden.vehiculo.marca}">Toyota</span>
+                        <span th:text="${orden.vehiculo.modelo}">Corolla</span>
+                        <span th:text="${orden.vehiculo.año}">2020</span>
+                    </h2>
+                    <h4 style="margin-top: 10px; opacity: 0.9;">
+                        Placa: <span th:text="${orden.vehiculo.placa}">ABC-123</span>
+                    </h4>
+                </div>
+            </div>
+
+            <!-- Progreso de Reparación -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-tasks"></i>
+                    Progreso de Reparación
+                </div>
+                <div class="progress progress-custom mb-3" id="progressBar">
+                    <div class="progress-bar progress-bar-custom"
+                         role="progressbar"
+                         th:style="'width: ' + ${orden.estadoOrden == 'RECIBIDO' ? '10' :
+                                                 orden.estadoOrden == 'EN_DIAGNOSTICO' ? '25' :
+                                                 orden.estadoOrden == 'EN_REPARACION' ? '50' :
+                                                 orden.estadoOrden == 'EN_PRUEBAS' ? '80' :
+                                                 orden.estadoOrden == 'COMPLETADO' ? '100' : '100'} + '%'"
+                         th:text="${orden.estadoOrden == 'RECIBIDO' ? '10%' :
+                                   orden.estadoOrden == 'EN_DIAGNOSTICO' ? '25%' :
+                                   orden.estadoOrden == 'EN_REPARACION' ? '50%' :
+                                   orden.estadoOrden == 'EN_PRUEBAS' ? '80%' :
+                                   orden.estadoOrden == 'COMPLETADO' ? '100%' : '100%'}">
+                        50%
+                    </div>
+                </div>
+                <p class="text-center text-muted">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Estado actual: <strong th:text="${#strings.replace(#strings.replace(orden.estadoOrden, '_', ' '), 'EN', 'En')}">En Reparación</strong>
+                </p>
+            </div>
+
+            <!-- Información General -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Información General
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar"></i>
+                            Fecha de Ingreso
+                        </div>
+                        <div class="info-value" th:text="${#temporals.format(orden.fechaIngreso, 'dd/MM/yyyy HH:mm')}">
+                            01/01/2024 10:00
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user-cog"></i>
+                            Mecánico Asignado
+                        </div>
+                        <div class="info-value" th:text="${orden.tecnico != null ? orden.tecnico.nombres + ' ' + orden.tecnico.apellidos : 'Por asignar'}">
+                            Juan Pérez
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-dollar-sign"></i>
+                            Costo Estimado
+                        </div>
+                        <div class="info-value">
+                            <span th:if="${orden.costoEstimado != null}" th:text="'S/. ' + #numbers.formatDecimal(orden.costoEstimado, 0, 2)">S/. 500.00</span>
+                            <span th:unless="${orden.costoEstimado != null}" class="text-muted">Por cotizar</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item" th:if="${orden.fechaEntrega != null}">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-check"></i>
+                            Fecha de Entrega
+                        </div>
+                        <div class="info-value" th:text="${#temporals.format(orden.fechaEntrega, 'dd/MM/yyyy HH:mm')}">
+                            05/01/2024 16:00
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Prioridad
+                        </div>
+                        <div class="info-value" th:text="${orden.prioridad}">
+                            NORMAL
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descripción del Problema -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-wrench"></i>
+                    Descripción del Problema
+                </div>
+                <div class="alert alert-light" role="alert">
+                    <p class="mb-0" style="font-size: 1.1rem;" th:text="${orden.descripcionProblema}">
+                        El vehículo presenta ruidos extraños en el motor al acelerar. Necesita revisión completa.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Historial de Estados -->
+            <div class="section" th:if="${!#lists.isEmpty(orden.estadosVehiculo)}">
+                <div class="section-title">
+                    <i class="fas fa-history"></i>
+                    Historial de Estados
+                </div>
+                <div class="timeline">
+                    <div th:each="estado : ${orden.estadosVehiculo}" class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h5 th:text="${#strings.replace(#strings.replace(estado.estado, '_', ' '), 'EN', 'En')}">En Diagnóstico</h5>
+                            <p class="text-muted mb-2">
+                                <i class="far fa-clock me-2"></i>
+                                <span th:text="${#temporals.format(estado.fechaCambio, 'dd/MM/yyyy HH:mm')}">01/01/2024 14:30</span>
+                            </p>
+                            <p class="mb-0" th:if="${estado.observaciones}" th:text="${estado.observaciones}">
+                                Se detectó problema en la transmisión
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SockJS y STOMP para WebSocket -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+
+    <script th:inline="javascript">
+        const ordenId = [[${orden.ordenId}]];
+        let stompClient = null;
+
+        // Conectar a WebSocket al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            conectarWebSocket();
+        });
+
+        function conectarWebSocket() {
+            const socket = new SockJS('/ws-notifications');
+            stompClient = StompJs.Stomp.over(socket);
+
+            stompClient.debug = function(str) {
+                console.log('STOMP: ' + str);
+            };
+
+            stompClient.connect({}, function(frame) {
+                console.log('✅ Conectado a WebSocket: ' + frame);
+
+                // Suscribirse a notificaciones personales
+                stompClient.subscribe('/user/queue/notificaciones', function(message) {
+                    const notificacion = JSON.parse(message.body);
+
+                    // Si la notificación es para esta orden, actualizar la página
+                    if (notificacion.ordenId == ordenId) {
+                        mostrarAlertaActualizacion(notificacion);
+
+                        // Recargar después de 3 segundos para mostrar los cambios
+                        setTimeout(() => {
+                            location.reload();
+                        }, 3000);
+                    }
+                });
+            }, function(error) {
+                console.error('❌ Error de conexión WebSocket:', error);
+                setTimeout(conectarWebSocket, 5000);
+            });
+        }
+
+        function mostrarAlertaActualizacion(notificacion) {
+            // Crear alerta en la parte superior
+            const alerta = document.createElement('div');
+            alerta.className = 'alert alert-info alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+            alerta.style.zIndex = '9999';
+            alerta.style.minWidth = '400px';
+            alerta.innerHTML = `
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <h5 class="alert-heading"><i class="fas fa-sync-alt me-2"></i>${notificacion.titulo}</h5>
+                <p class="mb-0">${notificacion.mensaje}</p>
+                <hr>
+                <p class="mb-0"><small>La página se actualizará en 3 segundos...</small></p>
+            `;
+            document.body.appendChild(alerta);
+        }
+
+        // Desconectar WebSocket al cerrar la página
+        window.addEventListener('beforeunload', function() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>

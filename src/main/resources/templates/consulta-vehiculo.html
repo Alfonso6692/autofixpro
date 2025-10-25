@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Estado del Vehículo</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <h1 class="logo">AutofixPro</h1>
+        <p class="tagline">Estado de tu vehículo</p>
+    </div>
+</header>
+
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-content">
+        <a href="/" class="nav-item">Volver al Inicio</a>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="container">
+    <section class="section">
+        <h2 class="section-title">Información del Vehículo</h2>
+
+        <div class="vehicle-info">
+            <div class="info-row">
+                <strong>Placa:</strong>
+                <span th:text="${vehiculo.placa}">ABC-123</span>
+            </div>
+            <div class="info-row">
+                <strong>Marca:</strong>
+                <span th:text="${vehiculo.marca}">Toyota</span>
+            </div>
+            <div class="info-row">
+                <strong>Modelo:</strong>
+                <span th:text="${vehiculo.modelo}">Corolla</span>
+            </div>
+            <div class="info-row">
+                <strong>Año:</strong>
+                <span th:text="${vehiculo.anio}">2020</span>
+            </div>
+        </div>
+
+        <!-- Mostrar órdenes de servicio si existen -->
+        <div th:if="${vehiculo.ordenesServicio != null and !vehiculo.ordenesServicio.isEmpty()}">
+            <h3 class="section-title">Órdenes de Servicio</h3>
+            <div class="ordenes-list">
+                <div th:each="orden : ${vehiculo.ordenesServicio}" class="orden-card">
+                    <p><strong>Orden #</strong><span th:text="${orden.ordenId}">1</span></p>
+                    <p><strong>Estado:</strong> <span th:text="${orden.estadoOrden}">EN_REPARACION</span></p>
+                    <p><strong>Fecha:</strong> <span th:text="${#temporals.format(orden.fechaIngreso, 'dd/MM/yyyy')}">24/10/2025</span></p>
+                    <p th:if="${orden.descripcion}"><strong>Descripción:</strong> <span th:text="${orden.descripcion}">Mantenimiento</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${vehiculo.ordenesServicio == null or vehiculo.ordenesServicio.isEmpty()}">
+            <p class="info-message">No hay órdenes de servicio registradas para este vehículo.</p>
+        </div>
+
+        <div class="action-section">
+            <a href="/" class="btn">Volver al Inicio</a>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2025 AutofixPro. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+</body>
+</html>
