@@ -35,3 +35,41 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Claude Code ###
+.claude/settings.local.json
+
+### AWS ###
+aws/
+aws-deployment/
+.ebextensions/
+awscliv2.zip
+AWSCLIV2.msi
+AWS_CONFIG_README.md
+
+### Backups and Archives ###
+*.zip
+*.jar
+login-backup*.html
+
+### Deployment ###
+Procfile
+nixpacks.toml
+
+### SQL Scripts (temporal) ###
+init-db.sql
+insert-usuarios.sql
+migracion-clientes-usuarios.sql
+solucionar-login.sql
+verificar-*.sql
+
+### Test Scripts ###
+test-*.sh
+test-*.json
+cookies.txt
+
+### Compiled Classes ###
+*.class
+
+### Temporary Files ###
+nul
