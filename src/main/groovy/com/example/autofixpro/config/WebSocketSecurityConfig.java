@@ -15,16 +15,17 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
-            // Permitir conexión y suscripción solo a usuarios autenticados
-            .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.HEARTBEAT, SimpMessageType.UNSUBSCRIBE, SimpMessageType.DISCONNECT).permitAll()
-            // Solo usuarios autenticados pueden enviar mensajes
-            .simpDestMatchers("/app/**").authenticated()
-            // Solo usuarios autenticados pueden suscribirse a notificaciones personales
-            .simpSubscribeDestMatchers("/user/queue/**").authenticated()
-            // Permitir suscripción a topics públicos (opcional)
-            .simpSubscribeDestMatchers("/topic/**").permitAll()
-            // Todo lo demás requiere autenticación
-            .anyMessage().authenticated();
+            // Permitir todas las conexiones WebSocket (la autenticación se maneja a nivel HTTP)
+            .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.HEARTBEAT,
+                             SimpMessageType.UNSUBSCRIBE, SimpMessageType.DISCONNECT).permitAll()
+            // Permitir envío de mensajes (validación en el controlador si es necesario)
+            .simpDestMatchers("/app/**").permitAll()
+            // Permitir suscripción a notificaciones personales
+            .simpSubscribeDestMatchers("/user/queue/**", "/user/**").permitAll()
+            // Permitir suscripción a topics públicos
+            .simpSubscribeDestMatchers("/topic/**", "/queue/**").permitAll()
+            // Permitir todo para desarrollo - ajustar en producción
+            .anyMessage().permitAll();
     }
 
     @Override

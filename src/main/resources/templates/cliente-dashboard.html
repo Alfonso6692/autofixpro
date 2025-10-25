@@ -255,6 +255,16 @@
 
     <!-- Main Content -->
     <div class="container mb-5">
+        <!-- Botón para solicitar reparación -->
+        <div class="row mb-4" th:if="${!#lists.isEmpty(vehiculos)}">
+            <div class="col-12">
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalSolicitudReparacion">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Solicitar Nueva Reparación
+                </button>
+            </div>
+        </div>
+
         <!-- Mensaje si no hay vehículos -->
         <div th:if="${#lists.isEmpty(vehiculos)}" class="empty-state">
             <i class="fas fa-car"></i>
@@ -437,6 +447,97 @@
         </div>
     </div>
 
+    <!-- Modal para Solicitar Reparación -->
+    <div class="modal fade" id="modalSolicitudReparacion" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white;">
+                    <h5 class="modal-title" id="modalLabel">
+                        <i class="fas fa-tools me-2"></i>
+                        Solicitar Nueva Reparación
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formSolicitudReparacion">
+                        <!-- Selección de Vehículo -->
+                        <div class="mb-4">
+                            <label for="vehiculoId" class="form-label fw-bold">
+                                <i class="fas fa-car me-2"></i>Selecciona tu Vehículo
+                            </label>
+                            <select class="form-select form-select-lg" id="vehiculoId" name="vehiculoId" required>
+                                <option value="">-- Selecciona un vehículo --</option>
+                                <option th:each="vehiculo : ${vehiculos}"
+                                        th:value="${vehiculo.vehiculoId}"
+                                        th:text="${vehiculo.marca + ' ' + vehiculo.modelo + ' - Placa: ' + vehiculo.placa}">
+                                    Toyota Corolla - Placa: ABC-123
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Tipo de Problema -->
+                        <div class="mb-4">
+                            <label for="tipoProblema" class="form-label fw-bold">
+                                <i class="fas fa-wrench me-2"></i>Tipo de Problema
+                            </label>
+                            <select class="form-select form-select-lg" id="tipoProblema" name="tipoProblema" required>
+                                <option value="">-- Selecciona el tipo de problema --</option>
+                                <option value="MECANICO">Mecánico (Motor, Transmisión, etc.)</option>
+                                <option value="ELECTRICO">Eléctrico (Batería, Luces, etc.)</option>
+                                <option value="FRENOS">Sistema de Frenos</option>
+                                <option value="SUSPENSION">Suspensión y Dirección</option>
+                                <option value="NEUMATICOS">Neumáticos y Alineación</option>
+                                <option value="AIRE_ACONDICIONADO">Aire Acondicionado</option>
+                                <option value="MANTENIMIENTO">Mantenimiento Preventivo</option>
+                                <option value="OTRO">Otro</option>
+                            </select>
+                        </div>
+
+                        <!-- Descripción del Problema -->
+                        <div class="mb-4">
+                            <label for="descripcionProblema" class="form-label fw-bold">
+                                <i class="fas fa-comment-alt me-2"></i>Descripción del Problema
+                            </label>
+                            <textarea class="form-control" id="descripcionProblema" name="descripcionProblema"
+                                      rows="5" required
+                                      placeholder="Por favor, describe detalladamente el problema que presenta tu vehículo. Incluye síntomas, ruidos, comportamientos anormales, etc."></textarea>
+                            <small class="form-text text-muted">
+                                Cuanto más detallada sea tu descripción, mejor podremos ayudarte.
+                            </small>
+                        </div>
+
+                        <!-- Prioridad -->
+                        <div class="mb-4">
+                            <label for="prioridad" class="form-label fw-bold">
+                                <i class="fas fa-flag me-2"></i>Urgencia
+                            </label>
+                            <select class="form-select form-select-lg" id="prioridad" name="prioridad" required>
+                                <option value="NORMAL">Normal - Puedo esperar algunos días</option>
+                                <option value="URGENTE">Urgente - Lo necesito pronto</option>
+                                <option value="CRITICA">Crítica - Es una emergencia</option>
+                            </select>
+                        </div>
+
+                        <!-- Información Adicional -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Información:</strong> Una vez enviada tu solicitud, nuestro equipo la revisará y te contactaremos
+                            en las próximas horas para confirmarte la fecha y hora de la cita. Recibirás una notificación en tiempo real.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success btn-lg" onclick="enviarSolicitudReparacion()">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Solicitud
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">
@@ -590,6 +691,80 @@
                 stompClient.disconnect();
             }
         });
+
+        // Función para enviar solicitud de reparación
+        async function enviarSolicitudReparacion() {
+            const form = document.getElementById('formSolicitudReparacion');
+
+            // Validar formulario
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Obtener valores del formulario
+            const vehiculoId = document.getElementById('vehiculoId').value;
+            const tipoProblema = document.getElementById('tipoProblema').value;
+            const descripcionProblema = document.getElementById('descripcionProblema').value;
+            const prioridad = document.getElementById('prioridad').value;
+
+            // Crear objeto de solicitud
+            const solicitud = {
+                vehiculoId: parseInt(vehiculoId),
+                tipoProblema: tipoProblema,
+                descripcionProblema: `[${tipoProblema}] ${descripcionProblema}`,
+                prioridad: prioridad
+            };
+
+            // Deshabilitar botón y mostrar loading
+            const botonEnviar = event.target;
+            const textoOriginal = botonEnviar.innerHTML;
+            botonEnviar.disabled = true;
+            botonEnviar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+
+            try {
+                // Enviar solicitud al servidor
+                const response = await fetch('/cliente/solicitar-reparacion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(solicitud)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Cerrar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalSolicitudReparacion'));
+                    modal.hide();
+
+                    // Limpiar formulario
+                    form.reset();
+
+                    // Mostrar notificación de éxito
+                    mostrarNotificacion({
+                        tipo: 'SOLICITUD_CREADA',
+                        titulo: '¡Solicitud Enviada!',
+                        mensaje: 'Tu solicitud ha sido enviada exitosamente. Recibirás una notificación cuando un técnico sea asignado.'
+                    });
+
+                    // Recargar la página después de 2 segundos
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Error al enviar la solicitud');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al enviar la solicitud: ' + error.message);
+            } finally {
+                // Restaurar botón
+                botonEnviar.disabled = false;
+                botonEnviar.innerHTML = textoOriginal;
+            }
+        }
     </script>
 </body>
 </html>
