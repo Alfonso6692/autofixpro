@@ -19,6 +19,13 @@ public interface OrdenServicioDAO extends JpaRepository<OrdenServicio, Long> {
 
     List<OrdenServicio> findByVehiculoVehiculoId(Long vehiculoId);
 
+    // Para historial de vehículo - evita MultipleBagFetchException
+    @Query("SELECT DISTINCT os FROM OrdenServicio os " +
+            "LEFT JOIN FETCH os.tecnico " +
+            "WHERE os.vehiculo.vehiculoId = :vehiculoId " +
+            "ORDER BY os.fechaIngreso DESC")
+    List<OrdenServicio> findHistorialByVehiculoId(@Param("vehiculoId") Long vehiculoId);
+
     @Query("SELECT os FROM OrdenServicio os WHERE os.fechaIngreso BETWEEN :fechaInicio AND :fechaFin")
     List<OrdenServicio> findByFechaIngresoBetween(@Param("fechaInicio") LocalDateTime fechaInicio,
                                                   @Param("fechaFin") LocalDateTime fechaFin);

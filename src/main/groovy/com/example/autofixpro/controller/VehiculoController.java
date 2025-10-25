@@ -1,9 +1,12 @@
 package com.example.autofixpro.controller;
 
+import com.example.autofixpro.dto.OrdenServicioDTO;
 import com.example.autofixpro.entity.Cliente;
+import com.example.autofixpro.entity.OrdenServicio;
 import com.example.autofixpro.entity.Vehiculo;
 import com.example.autofixpro.service.VehiculoService;
 import com.example.autofixpro.service.ClienteService;
+import com.example.autofixpro.service.OrdenServicioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Controlador REST para gestionar las operaciones de los vehículos.
@@ -27,6 +31,9 @@ public class VehiculoController extends BaseController {
 
     @Autowired
     private ClienteService clienteService;
+
+    @Autowired
+    private OrdenServicioService ordenServicioService;
 
     /**
      * Obtiene una lista de todos los vehículos registrados.
@@ -93,12 +100,17 @@ public class VehiculoController extends BaseController {
     @GetMapping("/{id}/historial")
     public ResponseEntity<Map<String, Object>> obtenerHistorialServicios(@PathVariable Long id) {
         try {
-            Optional<Vehiculo> vehiculo = vehiculoService.obtenerHistorialServicios(id);
-            if (vehiculo.isPresent()) {
-                return createSuccessResponse(vehiculo.get().getOrdenesServicio(), "Historial de servicios obtenido exitosamente");
-            } else {
+            // Verificar que el vehículo existe
+            if (!vehiculoService.existsById(id)) {
                 return createErrorResponse("Vehículo no encontrado", HttpStatus.NOT_FOUND);
             }
+
+            // Obtener órdenes directamente por vehículo ID para evitar MultipleBagFetchException
+            List<OrdenServicioDTO> ordenesDTO = ordenServicioService.findHistorialByVehiculoId(id).stream()
+                .map(OrdenServicioDTO::new)
+                .collect(Collectors.toList());
+
+            return createSuccessResponse(ordenesDTO, "Historial de servicios obtenido exitosamente");
         } catch (Exception e) {
             return createErrorResponse("Error al obtener historial: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

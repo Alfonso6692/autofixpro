@@ -54,14 +54,20 @@ public class SecurityConfig {
                 .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/imagenes/**", "/favicon.ico").permitAll()
                 // Permitir acceso público a login, registro y páginas de consulta
                 .requestMatchers("/", "/index", "/web", "/login", "/register", "/consultar", "/api/auth/**").permitAll()
-                // Permitir acceso a la API REST sin autenticación
+                // WebSocket endpoints - permitir acceso (la seguridad se maneja a nivel de usuario)
+                .requestMatchers("/ws-notifications/**", "/app/**", "/topic/**", "/queue/**").permitAll()
+                // Permitir acceso a la API REST sin autenticación (considerar restringir en producción)
                 .requestMatchers("/api/**").permitAll()
                 // H2 Console solo para desarrollo
                 .requestMatchers("/h2-console/**").permitAll()
-                // Rutas administrativas
+                // Rutas administrativas - solo ADMIN
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Rutas de clientes
+                // Rutas del dashboard principal - ADMIN, TECNICO, RECEPCIONISTA
+                .requestMatchers("/dashboard", "/ordenes/**", "/vehiculos/**").hasAnyRole("ADMIN", "TECNICO", "RECEPCIONISTA")
+                // Rutas de clientes - solo USER
                 .requestMatchers("/cliente-dashboard", "/cliente/**").hasRole("USER")
+                // Rutas de técnicos
+                .requestMatchers("/tecnico/**").hasRole("TECNICO")
                 // Todas las demás requieren autenticación
                 .anyRequest().authenticated()
             )
@@ -75,17 +81,22 @@ public class SecurityConfig {
                 .permitAll()
             )
             .exceptionHandling(ex -> ex
-                .accessDeniedPage("/login")
+                .accessDeniedPage("/access-denied")
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
+                .clearAuthentication(true)
                 .permitAll()
             )
+            .sessionManagement(session -> session
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+            )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**", "/api/**")
+                .ignoringRequestMatchers("/h2-console/**", "/api/**", "/ws-notifications/**")
             )
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.sameOrigin())

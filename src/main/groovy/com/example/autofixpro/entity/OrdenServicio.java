@@ -38,7 +38,6 @@ public class OrdenServicio {
     // Relación con Vehículo
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehiculo_id")
-    @JsonBackReference("vehiculo-ordenes")
     private Vehiculo vehiculo;
 
     // Relación con Técnico

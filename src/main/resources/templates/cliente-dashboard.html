@@ -449,11 +449,147 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SockJS y STOMP para WebSocket -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+
     <script>
-        // Auto-refresh cada 30 segundos
-        setInterval(function() {
-            location.reload();
-        }, 30000);
+        // Configuración de WebSocket para notificaciones en tiempo real
+        let stompClient = null;
+        let notificationContainer = null;
+
+        // Conectar a WebSocket al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            conectarWebSocket();
+            crearContenedorNotificaciones();
+        });
+
+        function conectarWebSocket() {
+            // Crear socket usando SockJS
+            const socket = new SockJS('/ws-notifications');
+            stompClient = StompJs.Stomp.over(socket);
+
+            // Configuración para debug (puedes desactivarlo en producción)
+            stompClient.debug = function(str) {
+                console.log('STOMP: ' + str);
+            };
+
+            // Conectar al servidor WebSocket
+            stompClient.connect({}, function(frame) {
+                console.log('✅ Conectado a WebSocket: ' + frame);
+
+                // Suscribirse a notificaciones personales del usuario
+                stompClient.subscribe('/user/queue/notificaciones', function(message) {
+                    const notificacion = JSON.parse(message.body);
+                    mostrarNotificacion(notificacion);
+                    actualizarDashboard(notificacion);
+                });
+
+                mostrarMensajeConexion('Conectado en tiempo real', 'success');
+            }, function(error) {
+                console.error('❌ Error de conexión WebSocket:', error);
+                mostrarMensajeConexion('Sin conexión en tiempo real', 'warning');
+
+                // Intentar reconectar después de 5 segundos
+                setTimeout(conectarWebSocket, 5000);
+            });
+        }
+
+        function crearContenedorNotificaciones() {
+            // Crear div para notificaciones flotantes
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notification-container';
+            notificationContainer.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                z-index: 9999;
+                width: 350px;
+            `;
+            document.body.appendChild(notificationContainer);
+        }
+
+        function mostrarNotificacion(notificacion) {
+            // Crear elemento de notificación
+            const notifDiv = document.createElement('div');
+            notifDiv.className = 'alert alert-dismissible fade show shadow-lg';
+
+            // Determinar el estilo según el tipo
+            const estiloAlerta = notificacion.tipo === 'ORDEN_COMPLETADA' ? 'alert-success' :
+                                notificacion.tipo === 'ESTADO_ACTUALIZADO' ? 'alert-info' :
+                                'alert-primary';
+            notifDiv.classList.add(estiloAlerta);
+
+            notifDiv.innerHTML = `
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <h5 class="alert-heading mb-2">${notificacion.titulo}</h5>
+                <p class="mb-0">${notificacion.mensaje}</p>
+                ${notificacion.porcentajeProgreso ? `
+                    <div class="progress mt-3" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: ${notificacion.porcentajeProgreso}%">
+                            ${notificacion.porcentajeProgreso}%
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+
+            // Agregar al contenedor
+            notificationContainer.appendChild(notifDiv);
+
+            // Reproducir sonido de notificación (opcional)
+            reproducirSonidoNotificacion();
+
+            // Auto-eliminar después de 10 segundos
+            setTimeout(() => {
+                notifDiv.classList.remove('show');
+                setTimeout(() => notifDiv.remove(), 300);
+            }, 10000);
+        }
+
+        function actualizarDashboard(notificacion) {
+            // Si la notificación tiene ID de orden, actualizar esa orden específica
+            if (notificacion.ordenId) {
+                // Recargar solo esa sección en lugar de toda la página
+                setTimeout(() => {
+                    location.reload();
+                }, 2000); // Dar tiempo para que el usuario vea la notificación
+            }
+        }
+
+        function mostrarMensajeConexion(mensaje, tipo) {
+            console.log(`🔌 ${mensaje}`);
+        }
+
+        function reproducirSonidoNotificacion() {
+            // Crear y reproducir un sonido simple
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                // Ignorar si no se puede reproducir el sonido
+            }
+        }
+
+        // Desconectar WebSocket al cerrar la página
+        window.addEventListener('beforeunload', function() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+        });
     </script>
 </body>
 </html>

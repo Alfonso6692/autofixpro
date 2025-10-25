@@ -1,5 +1,6 @@
 package com.example.autofixpro.controller;
 
+import com.example.autofixpro.dto.OrdenServicioDTO;
 import com.example.autofixpro.entity.OrdenServicio;
 import com.example.autofixpro.entity.Vehiculo;
 import com.example.autofixpro.entity.Tecnico;
@@ -11,16 +12,22 @@ import com.example.autofixpro.service.TecnicoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Controlador REST para gestionar las operaciones de órdenes de servicio.
  * Proporciona endpoints para crear, consultar y actualizar órdenes de trabajo.
+ *
+ * Seguridad:
+ * - Solo usuarios con rol ADMIN, TECNICO o RECEPCIONISTA pueden gestionar órdenes
+ * - Los métodos críticos están protegidos con @PreAuthorize
  */
 @RestController
 @RequestMapping("/api/ordenes")
@@ -44,7 +51,10 @@ public class OrdenServicioController extends BaseController {
     public ResponseEntity<Map<String, Object>> listarOrdenes() {
         try {
             List<OrdenServicio> ordenes = ordenServicioService.findAll();
-            return createSuccessResponse(ordenes, "Órdenes de servicio obtenidas exitosamente");
+            List<OrdenServicioDTO> ordenesDTO = ordenes.stream()
+                .map(OrdenServicioDTO::new)
+                .collect(Collectors.toList());
+            return createSuccessResponse(ordenesDTO, "Órdenes de servicio obtenidas exitosamente");
         } catch (Exception e) {
             return createErrorResponse("Error al obtener órdenes: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -56,6 +66,7 @@ public class OrdenServicioController extends BaseController {
      * @param request Objeto con los datos de la orden (vehiculoId, descripcionProblema, prioridad, tecnicoId).
      * @return ResponseEntity con la orden creada.
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPCIONISTA')")
     @PostMapping
     public ResponseEntity<Map<String, Object>> crearOrdenServicio(@RequestBody Map<String, Object> request) {
         try {

@@ -16,6 +16,9 @@ public class NotificacionServicio {
     @Autowired
     private SistemaNotificaciones sistemaNotificaciones;
 
+    @Autowired
+    private NotificacionWebSocketService webSocketService;
+
     public void enviarNotificacionRegistro(Cliente cliente) {
         String mensaje = String.format("Bienvenido %s %s. Su registro ha sido completado exitosamente.",
                 cliente.getNombres(), cliente.getApellidos());
@@ -42,6 +45,9 @@ public class NotificacionServicio {
 
         sistemaNotificaciones.enviarNotificacion(cliente.getEmail(), notification);
         sistemaNotificaciones.enviarSMS(cliente.getTelefono(), mensaje);
+
+        // Enviar notificación en tiempo real vía WebSocket
+        webSocketService.notificarCambioEstado(orden, null);
     }
 
     public void notificarActualizacionEstado(OrdenServicio orden, EstadoOrden estadoAnterior, EstadoOrden nuevoEstado) {
@@ -63,6 +69,9 @@ public class NotificacionServicio {
         if (nuevoEstado == EstadoOrden.COMPLETADO || nuevoEstado == EstadoOrden.EN_REPARACION) {
             sistemaNotificaciones.enviarSMS(cliente.getTelefono(), mensaje);
         }
+
+        // Enviar notificación en tiempo real vía WebSocket
+        webSocketService.notificarCambioEstado(orden, estadoAnterior);
     }
 
     public void notificarCompletado(OrdenServicio orden) {
@@ -78,5 +87,8 @@ public class NotificacionServicio {
 
         sistemaNotificaciones.enviarNotificacion(cliente.getEmail(), notification);
         sistemaNotificaciones.enviarSMS(cliente.getTelefono(), mensaje);
+
+        // Enviar notificación en tiempo real vía WebSocket
+        webSocketService.notificarOrdenCompletada(orden);
     }
 }

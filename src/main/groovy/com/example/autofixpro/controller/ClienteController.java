@@ -1,5 +1,6 @@
 package com.example.autofixpro.controller;
 
+import com.example.autofixpro.dto.ClienteDTO;
 import com.example.autofixpro.entity.Cliente;
 import com.example.autofixpro.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Controlador REST para gestionar las operaciones CRUD de los clientes.
@@ -32,7 +34,11 @@ public class ClienteController extends BaseController {
     public ResponseEntity<Map<String, Object>> listarClientes() {
         try {
             List<Cliente> clientes = clienteService.findAll();
-            return createSuccessResponse(clientes, "Clientes obtenidos exitosamente");
+            // Convertir a DTO para evitar referencias circulares
+            List<ClienteDTO> clientesDTO = clientes.stream()
+                .map(ClienteDTO::new)
+                .collect(Collectors.toList());
+            return createSuccessResponse(clientesDTO, "Clientes obtenidos exitosamente");
         } catch (Exception e) {
             return createErrorResponse("Error al obtener clientes: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -48,7 +54,8 @@ public class ClienteController extends BaseController {
         try {
             Optional<Cliente> cliente = clienteService.findById(id);
             if (cliente.isPresent()) {
-                return createSuccessResponse(cliente.get(), "Cliente encontrado");
+                ClienteDTO clienteDTO = new ClienteDTO(cliente.get());
+                return createSuccessResponse(clienteDTO, "Cliente encontrado");
             } else {
                 return createErrorResponse("Cliente no encontrado", HttpStatus.NOT_FOUND);
             }
@@ -141,7 +148,10 @@ public class ClienteController extends BaseController {
     public ResponseEntity<Map<String, Object>> buscarClientesPorNombre(@RequestParam String nombre) {
         try {
             List<Cliente> clientes = clienteService.buscarPorNombre(nombre);
-            return createSuccessResponse(clientes, "Búsqueda completada");
+            List<ClienteDTO> clientesDTO = clientes.stream()
+                .map(ClienteDTO::new)
+                .collect(Collectors.toList());
+            return createSuccessResponse(clientesDTO, "Búsqueda completada");
         } catch (Exception e) {
             return createErrorResponse("Error en búsqueda: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -157,7 +167,8 @@ public class ClienteController extends BaseController {
         try {
             Optional<Cliente> cliente = clienteService.findByDni(dni);
             if (cliente.isPresent()) {
-                return createSuccessResponse(cliente.get(), "Cliente encontrado por DNI");
+                ClienteDTO clienteDTO = new ClienteDTO(cliente.get());
+                return createSuccessResponse(clienteDTO, "Cliente encontrado por DNI");
             } else {
                 return createErrorResponse("Cliente con DNI " + dni + " no encontrado", HttpStatus.NOT_FOUND);
             }

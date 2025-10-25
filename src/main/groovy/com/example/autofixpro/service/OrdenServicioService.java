@@ -151,6 +151,16 @@ public class OrdenServicioService implements GenericService<OrdenServicio, Long>
     }
 
     /**
+     * Obtiene el historial de órdenes de un vehículo sin cargar colecciones anidadas.
+     * Evita MultipleBagFetchException.
+     * @param vehiculoId El ID del vehículo.
+     * @return Una lista de órdenes de servicio ordenadas por fecha descendente.
+     */
+    public List<OrdenServicio> findHistorialByVehiculoId(Long vehiculoId) {
+        return ordenServicioDAO.findHistorialByVehiculoId(vehiculoId);
+    }
+
+    /**
      * Busca órdenes de servicio dentro de un período de tiempo específico.
      * Útil para generar reportes (CU06).
      * @param fechaInicio La fecha de inicio del período.

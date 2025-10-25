@@ -2,9 +2,13 @@ package com.example.autofixpro.controller;
 
 import com.example.autofixpro.dao.ClienteDAO;
 import com.example.autofixpro.entity.Cliente;
+import com.example.autofixpro.entity.OrdenServicio;
 import com.example.autofixpro.entity.Usuario;
 import com.example.autofixpro.entity.Vehiculo;
+import com.example.autofixpro.service.OrdenServicioService;
 import com.example.autofixpro.service.UsuarioService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,11 +30,16 @@ import java.util.List;
 @Controller
 public class ClienteDashboardController {
 
+    private static final Logger log = LoggerFactory.getLogger(ClienteDashboardController.class);
+
     @Autowired
     private UsuarioService usuarioService;
 
     @Autowired
     private ClienteDAO clienteDAO;
+
+    @Autowired
+    private OrdenServicioService ordenServicioService;
 
     /**
      * Muestra el dashboard principal del cliente.
@@ -91,9 +100,32 @@ public class ClienteDashboardController {
      */
     @GetMapping("/cliente/orden/{id}")
     public String verDetallesOrden(@PathVariable Long id, Model model) {
-        // TODO: Implementar vista detallada de la orden
-        // Por ahora redirigir al dashboard
-        return "redirect:/cliente-dashboard";
+        // Obtener el usuario autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Usuario usuario = usuarioService.buscarPorUsername(username)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Buscar la orden
+        OrdenServicio orden = ordenServicioService.findById(id)
+            .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+
+        // Verificar que el cliente es el propietario del vehículo de esta orden
+        if (orden.getVehiculo() != null && orden.getVehiculo().getCliente() != null) {
+            if (orden.getVehiculo().getCliente().getUsuario() != null &&
+                !orden.getVehiculo().getCliente().getUsuario().getUsername().equals(username)) {
+                // No es su orden, redirigir al dashboard
+                log.warn("Usuario {} intentó acceder a orden {} que no le pertenece", username, id);
+                return "redirect:/cliente-dashboard";
+            }
+        }
+
+        model.addAttribute("title", "Detalles de la Orden #" + id);
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("orden", orden);
+
+        return "cliente-orden-detalle";
     }
 
     /**
