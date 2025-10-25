@@ -26,6 +26,11 @@ public class Cliente {
     @Column(nullable = false, length = 100)
     private String email;
 
+    // Relación OneToOne con Usuario
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
+
     // Relación con Vehículos
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -63,4 +68,7 @@ public class Cliente {
 
     public List<Vehiculo> getVehiculos() { return vehiculos; }
     public void setVehiculos(List<Vehiculo> vehiculos) { this.vehiculos = vehiculos; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 }

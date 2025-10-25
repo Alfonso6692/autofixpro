@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     /**
-     * Muestra la página de inicio principal.
+     * Muestra la página de inicio principal (index.html).
      * @return El nombre de la vista 'index'.
      */
     @GetMapping("/")
@@ -19,11 +19,11 @@ public class HomeController {
     }
 
     /**
-     * Redirige desde /index al dashboard de la aplicación.
-     * @return Una cadena de redirección a '/dashboard'.
+     * Muestra la página de inicio (index.html).
+     * @return El nombre de la vista 'index'.
      */
     @GetMapping("/index")
     public String index() {
-        return "redirect:/dashboard";
+        return "index";
     }
 }

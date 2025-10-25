@@ -46,6 +46,10 @@ public class Usuario {
     @Column(name = "ultima_actualizacion")
     private LocalDateTime ultimaActualizacion;
 
+    // Relación OneToOne con Cliente
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Cliente cliente;
+
     @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();

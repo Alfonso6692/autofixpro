@@ -51,9 +51,9 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 // Permitir acceso a recursos estáticos
-                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                // Permitir acceso público a login y registro
-                .requestMatchers("/", "/index", "/login", "/register", "/api/auth/**").permitAll()
+                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/imagenes/**", "/favicon.ico").permitAll()
+                // Permitir acceso público a login, registro y páginas de consulta
+                .requestMatchers("/", "/index", "/web", "/login", "/register", "/consultar", "/api/auth/**").permitAll()
                 // Permitir acceso a la API REST sin autenticación
                 .requestMatchers("/api/**").permitAll()
                 // H2 Console solo para desarrollo
@@ -73,6 +73,9 @@ public class SecurityConfig {
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .permitAll()
+            )
+            .exceptionHandling(ex -> ex
+                .accessDeniedPage("/login")
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")

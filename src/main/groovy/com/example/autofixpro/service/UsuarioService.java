@@ -2,6 +2,7 @@ package com.example.autofixpro.service;
 
 import com.example.autofixpro.dao.UsuarioDAO;
 import com.example.autofixpro.entity.Usuario;
+import com.example.autofixpro.entity.Cliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -65,6 +66,17 @@ public class UsuarioService implements UserDetailsService {
      * @throws RuntimeException si el nombre de usuario o el email ya existen.
      */
     public Usuario registrarUsuario(Usuario usuario) {
+        return registrarUsuario(usuario, null);
+    }
+
+    /**
+     * Registra un nuevo usuario en el sistema con DNI.
+     * @param usuario El usuario a registrar.
+     * @param dni El DNI del cliente (opcional).
+     * @return El usuario guardado con la contraseña encriptada.
+     * @throws RuntimeException si el nombre de usuario o el email ya existen.
+     */
+    public Usuario registrarUsuario(Usuario usuario, String dni) {
         if (usuarioDAO.existsByUsername(usuario.getUsername())) {
             throw new RuntimeException("El nombre de usuario ya existe");
         }
@@ -75,7 +87,33 @@ public class UsuarioService implements UserDetailsService {
         // Encriptar contraseña
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 
-        return usuarioDAO.save(usuario);
+        // Guardar el usuario primero
+        Usuario usuarioGuardado = usuarioDAO.save(usuario);
+
+        // Si el usuario es de tipo USER, crear automáticamente un Cliente asociado
+        if (usuario.getRole() == Usuario.Role.USER) {
+            Cliente cliente = new Cliente();
+
+            // Separar nombre completo en nombres y apellidos
+            String nombreCompleto = usuario.getNombre();
+            String[] partes = nombreCompleto.split(" ", 2);
+            cliente.setNombres(partes.length > 0 ? partes[0] : nombreCompleto);
+            cliente.setApellidos(partes.length > 1 ? partes[1] : "");
+
+            // Usar datos del usuario
+            cliente.setEmail(usuario.getEmail());
+            cliente.setTelefono(usuario.getTelefono() != null ? usuario.getTelefono() : "");
+            cliente.setDni(dni != null && !dni.trim().isEmpty() ? dni.trim() : "");
+
+            // Establecer la relación bidireccional
+            cliente.setUsuario(usuarioGuardado);
+            usuarioGuardado.setCliente(cliente);
+
+            // Guardar nuevamente para persistir la relación
+            usuarioGuardado = usuarioDAO.save(usuarioGuardado);
+        }
+
+        return usuarioGuardado;
     }
 
     /**
@@ -138,6 +176,18 @@ public class UsuarioService implements UserDetailsService {
     public void cambiarPassword(Long id, String nuevaPassword) {
         Usuario usuario = usuarioDAO.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+        usuarioDAO.save(usuario);
+    }
+
+    /**
+     * Cambia la contraseña de un usuario por su nombre de usuario.
+     * @param username El nombre de usuario.
+     * @param nuevaPassword La nueva contraseña (sin encriptar).
+     */
+    public void cambiarPasswordPorUsername(String username, String nuevaPassword) {
+        Usuario usuario = usuarioDAO.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
         usuario.setPassword(passwordEncoder.encode(nuevaPassword));
         usuarioDAO.save(usuario);
     }

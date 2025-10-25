@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Locale;
 
+/**
+ * Controlador REST de ejemplo para verificar que la aplicación está funcionando.
+ * Proporciona endpoints básicos de información y bienvenida.
+ */
 @RestController
 public class HelloController {
 
@@ -15,12 +19,20 @@ public class HelloController {
 
     private final Locale spanishLocale = new Locale("es", "ES");
 
+    /**
+     * Endpoint de bienvenida que demuestra la internacionalización (i18n).
+     * @return Un saludo de bienvenida.
+     */
     @GetMapping("/api")
     public String holaMundo() {
         String welcomeMessage = messageSource.getMessage("app.welcome", null, spanishLocale);
         return "🚗 " + welcomeMessage + " 🔧 Spring Boot funcionando correctamente";
     }
 
+    /**
+     * Endpoint que devuelve información básica sobre la aplicación.
+     * @return Un string en formato JSON con detalles de la aplicación.
+     */
     @GetMapping("/autofixpro")
     public String autofixproInfo() {
         return """

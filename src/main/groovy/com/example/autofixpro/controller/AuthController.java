@@ -72,6 +72,7 @@ public class AuthController {
     @PostMapping("/register")
     public String registerUser(@ModelAttribute Usuario usuario,
                               @RequestParam String confirmPassword,
+                              @RequestParam(required = false) String dni,
                               RedirectAttributes redirectAttributes) {
         try {
             // Validaciones
@@ -90,8 +91,8 @@ public class AuthController {
                 usuario.setRole(Usuario.Role.USER);
             }
 
-            // Registrar usuario
-            usuarioService.registrarUsuario(usuario);
+            // Registrar usuario (el DNI se pasa al servicio)
+            usuarioService.registrarUsuario(usuario, dni);
 
             redirectAttributes.addFlashAttribute("message", "Registro exitoso. Por favor inicia sesión.");
             return "redirect:/login";

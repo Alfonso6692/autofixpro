@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutofixPro - Tu taller de confianza para el cuidado de tu vehículo</title>
+    <title>AutofixPro - Tu taller de confianza</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+
 <!-- Header -->
 <header class="header">
+    <img class="header__img" src="/images/logo.png" alt="">
     <div class="header-content">
         <h1 class="logo">AutofixPro</h1>
         <p class="tagline">Tu taller de confianza para el cuidado de tu vehículo</p>
@@ -21,7 +23,6 @@
         <a href="#inicio" class="nav-item">Inicio</a>
         <a href="#nosotros" class="nav-item">Nosotros</a>
         <a href="#servicios" class="nav-item">Servicios</a>
-        <a href="#contratar" class="nav-item">Contratar</a>
         <a href="#consultar" class="nav-item">Consultar Vehículo</a>
         <a href="#contacto" class="nav-item">Contacto</a>
         <a href="/login" class="nav-item">Login</a>
@@ -30,6 +31,12 @@
 
 <!-- Main Content -->
 <main class="container">
+
+    <!-- Mensajes de Alerta -->
+    <div th:if="${error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
+    </div>
+
     <!-- About Section -->
     <section id="nosotros" class="section">
         <h2 class="section-title">Sobre Nosotros</h2>
@@ -44,31 +51,16 @@
         <div class="services-grid">
             <div class="service-card">
                 <h3 class="service-title">Mantenimiento Preventivo</h3>
-                <p class="service-description">
-                    Cuida tu auto con cambios de aceite, filtros y chequeos completos.
-                </p>
+                <p class="service-description">Cuida tu auto con cambios de aceite, filtros y chequeos completos.</p>
             </div>
             <div class="service-card">
                 <h3 class="service-title">Reparaciones Generales</h3>
-                <p class="service-description">
-                    Desde frenos hasta motor, resolvemos cualquier problema mecánico.
-                </p>
+                <p class="service-description">Desde frenos hasta motor, resolvemos cualquier problema mecánico.</p>
             </div>
             <div class="service-card">
                 <h3 class="service-title">Diagnóstico Avanzado</h3>
-                <p class="service-description">
-                    Contamos con escáneres y herramientas modernas para detectar fallas.
-                </p>
+                <p class="service-description">Contamos con escáneres y herramientas modernas para detectar fallas.</p>
             </div>
-        </div>
-    </section>
-
-    <!-- Service Booking Section -->
-    <section id="contratar" class="section">
-        <div class="action-section">
-            <h2 class="action-title">Contrata tu Servicio</h2>
-            <p class="action-description">Agenda una cita en línea para tu vehículo.</p>
-            <a href="#" class="btn">Agendar Cita</a>
         </div>
     </section>
 
@@ -76,8 +68,13 @@
     <section id="consultar" class="section">
         <div class="action-section">
             <h2 class="action-title">Consulta el Estado de tu Vehículo</h2>
-            <p class="action-description">Ingresa tu número de orden o placa para verificar el progreso de la reparación.</p>
-            <a href="#" class="btn">Consultar Estado</a>
+            <p class="action-description">Ingresa la placa de tu vehículo para verificar el progreso de la reparación.</p>
+            
+            <!-- Formulario de Consulta -->
+            <form th:action="@{/consultar}" method="get" class="consultar-form">
+                <input type="text" name="placa" placeholder="Ingresa la placa (ej. ABC-123)" required class="form-input">
+                <button type="submit" class="btn">Consultar Estado</button>
+            </form>
         </div>
     </section>
 
@@ -108,8 +105,7 @@
     </div>
 </footer>
 
-
-    <script src="/js/js.js"></script>
+<script src="/js/js.js"></script>
 
 </body>
 </html>

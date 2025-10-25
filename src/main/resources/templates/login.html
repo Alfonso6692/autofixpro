@@ -6,9 +6,15 @@
     <title th:text="${title}">AutoFixPro - Iniciar Sesión</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* Imagen de fondo con overlay de gradiente */
+            background-image: url("/imagenes/fondo_index.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -108,6 +114,8 @@
         .tab-content.active {
             display: block !important;
             animation: fadeIn 0.3s ease;
+            visibility: visible;
+            opacity: 1;
         }
 
         @keyframes fadeIn {
@@ -315,7 +323,7 @@
             </div>
 
             <!-- FORMULARIO CLIENTE -->
-            <div id="tab-cliente" class="tab-content active">
+            <div id="tab-cliente" class="tab-content active" style="display: block;">
                 <h4 class="text-center mb-4" style="color: #21a52f;">
                     <i class="fas fa-user me-2"></i>Acceso Cliente
                 </h4>
@@ -502,9 +510,16 @@
             localStorage.setItem('selectedLoginRole', role);
         }
 
-        // Inicializar al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM cargado');
+        // Función de inicialización
+        function initializePage() {
+            console.log('Inicializando página de login...');
+
+            // Asegurar que al menos el tab de cliente esté visible
+            const clienteTab = document.getElementById('tab-cliente');
+            if (clienteTab) {
+                clienteTab.classList.add('active');
+                clienteTab.style.display = 'block';
+            }
 
             // Restaurar la pestaña guardada o mostrar cliente por defecto
             const savedRole = localStorage.getItem('selectedLoginRole') || 'cliente';
@@ -519,12 +534,17 @@
                     firstInput.focus();
                 }
             }, 200);
-        });
 
-        // Efecto de enfoque en los inputs
-        document.querySelectorAll('.form-control').forEach(input => {
+            // Efecto de enfoque en los inputs
+            document.querySelectorAll('.form-control').forEach(input => {
             input.addEventListener('focus', function() {
+                // Asegurar que el tab activo siga visible
                 const activeTab = this.closest('.tab-content');
+                if (activeTab) {
+                    activeTab.classList.add('active');
+                    activeTab.style.display = 'block';
+                }
+
                 let color = '#21a52f';
 
                 if (activeTab && activeTab.id === 'tab-tecnico') {
@@ -549,7 +569,25 @@
                     }
                 }
             });
-        });
+
+            // Prevenir que el input oculte el formulario
+            input.addEventListener('input', function() {
+                const activeTab = this.closest('.tab-content');
+                if (activeTab) {
+                    activeTab.classList.add('active');
+                    activeTab.style.display = 'block';
+                }
+            });
+            });
+        }
+
+        // Ejecutar inmediatamente si el DOM ya está cargado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        } else {
+            // DOM ya está listo, ejecutar inmediatamente
+            initializePage();
+        }
     </script>
 </body>
 </html>
