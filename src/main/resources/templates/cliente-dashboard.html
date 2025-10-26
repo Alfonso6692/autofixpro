@@ -255,12 +255,16 @@
 
     <!-- Main Content -->
     <div class="container mb-5">
-        <!-- Botón para solicitar reparación -->
+        <!-- Botones de acción -->
         <div class="row mb-4" th:if="${!#lists.isEmpty(vehiculos)}">
             <div class="col-12">
-                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalSolicitudReparacion">
+                <button type="button" class="btn btn-success btn-lg me-3" data-bs-toggle="modal" data-bs-target="#modalSolicitudReparacion">
                     <i class="fas fa-plus-circle me-2"></i>
                     Solicitar Nueva Reparación
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalRegistrarVehiculo">
+                    <i class="fas fa-car-side me-2"></i>
+                    Registrar Otro Vehículo
                 </button>
             </div>
         </div>
@@ -269,8 +273,11 @@
         <div th:if="${#lists.isEmpty(vehiculos)}" class="empty-state">
             <i class="fas fa-car"></i>
             <h3>No tienes vehículos registrados</h3>
-            <p>Aún no has registrado ningún vehículo en el sistema.</p>
-            <p>Acércate a nuestro taller para registrar tu vehículo y solicitar un servicio.</p>
+            <p>Registra tu primer vehículo para poder solicitar servicios de reparación.</p>
+            <button type="button" class="btn btn-primary btn-lg mt-3" data-bs-toggle="modal" data-bs-target="#modalRegistrarVehiculo">
+                <i class="fas fa-car-side me-2"></i>
+                Registrar Mi Vehículo
+            </button>
         </div>
 
         <!-- Lista de Vehículos y Órdenes -->
@@ -285,7 +292,7 @@
                         <h3 class="mb-3">
                             <span th:text="${vehiculo.marca}">Toyota</span>
                             <span th:text="${vehiculo.modelo}">Corolla</span>
-                            <small class="text-muted" th:text="${vehiculo.año}">2020</small>
+                            <small class="text-muted" th:text="${vehiculo.year}">2020</small>
                         </h3>
                         <div class="vehicle-info">
                             <div class="info-item">
@@ -444,6 +451,106 @@
             </div>
 
             <hr class="my-5">
+        </div>
+    </div>
+
+    <!-- Modal para Registrar Vehículo -->
+    <div class="modal fade" id="modalRegistrarVehiculo" tabindex="-1" aria-labelledby="modalRegistrarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white;">
+                    <h5 class="modal-title" id="modalRegistrarLabel">
+                        <i class="fas fa-car-side me-2"></i>
+                        Registrar Mi Vehículo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRegistrarVehiculo">
+                        <!-- Placa -->
+                        <div class="mb-3">
+                            <label for="placa" class="form-label fw-bold">
+                                <i class="fas fa-id-card me-2"></i>Placa del Vehículo *
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="placa" name="placa"
+                                   required maxlength="10" placeholder="Ej: ABC-123"
+                                   style="text-transform: uppercase;">
+                            <small class="form-text text-muted">Formato: ABC-123 o AAA-111</small>
+                        </div>
+
+                        <!-- Marca y Modelo -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="marca" class="form-label fw-bold">
+                                    <i class="fas fa-car me-2"></i>Marca *
+                                </label>
+                                <select class="form-select form-select-lg" id="marca" name="marca" required>
+                                    <option value="">-- Selecciona la marca --</option>
+                                    <option value="Toyota">Toyota</option>
+                                    <option value="Nissan">Nissan</option>
+                                    <option value="Honda">Honda</option>
+                                    <option value="Mazda">Mazda</option>
+                                    <option value="Chevrolet">Chevrolet</option>
+                                    <option value="Ford">Ford</option>
+                                    <option value="Hyundai">Hyundai</option>
+                                    <option value="Kia">Kia</option>
+                                    <option value="Volkswagen">Volkswagen</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modelo" class="form-label fw-bold">
+                                    <i class="fas fa-car-side me-2"></i>Modelo *
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="modelo" name="modelo"
+                                       required maxlength="50" placeholder="Ej: Corolla">
+                            </div>
+                        </div>
+
+                        <!-- Año y Color -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="anio" class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-2"></i>Año *
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="anio" name="anio"
+                                       required min="1980" max="2025" placeholder="Ej: 2020">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="color" class="form-label fw-bold">
+                                    <i class="fas fa-palette me-2"></i>Color *
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="color" name="color"
+                                       required maxlength="20" placeholder="Ej: Negro">
+                            </div>
+                        </div>
+
+                        <!-- Kilometraje (Opcional) -->
+                        <div class="mb-3">
+                            <label for="kilometraje" class="form-label fw-bold">
+                                <i class="fas fa-tachometer-alt me-2"></i>Kilometraje (Opcional)
+                            </label>
+                            <input type="number" class="form-control form-control-lg" id="kilometraje" name="kilometraje"
+                                   min="0" placeholder="Ej: 50000">
+                            <small class="form-text text-muted">Déjalo en blanco si no conoces el kilometraje exacto</small>
+                        </div>
+
+                        <!-- Información -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Nota:</strong> Una vez registrado tu vehículo, podrás solicitar servicios de reparación inmediatamente.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary btn-lg" onclick="registrarVehiculo()">
+                        <i class="fas fa-save me-2"></i>Registrar Vehículo
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -724,7 +831,7 @@
 
             try {
                 // Enviar solicitud al servidor
-                const response = await fetch('/cliente/solicitar-reparacion', {
+                const response = await fetch('/api/cliente/solicitar-reparacion', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -763,6 +870,92 @@
                 // Restaurar botón
                 botonEnviar.disabled = false;
                 botonEnviar.innerHTML = textoOriginal;
+            }
+        }
+
+        /**
+         * Registra un nuevo vehículo para el cliente actual
+         */
+        async function registrarVehiculo() {
+            const form = document.getElementById('formRegistrarVehiculo');
+
+            // Validar formulario
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Obtener datos del formulario
+            const placa = document.getElementById('placa').value.trim().toUpperCase();
+            const marca = document.getElementById('marca').value;
+            const modelo = document.getElementById('modelo').value.trim();
+            const anio = document.getElementById('anio').value;
+            const color = document.getElementById('color').value.trim();
+            const kilometraje = document.getElementById('kilometraje').value || '0';
+
+            // Validar campos
+            if (!placa || !marca || !modelo || !anio || !color) {
+                alert('Por favor, complete todos los campos obligatorios');
+                return;
+            }
+
+            // Construir objeto de datos
+            const datosVehiculo = {
+                placa: placa,
+                marca: marca,
+                modelo: modelo,
+                anio: parseInt(anio),
+                color: color,
+                kilometraje: parseInt(kilometraje)
+            };
+
+            const botonRegistrar = event.target;
+            const textoOriginal = botonRegistrar.innerHTML;
+
+            try {
+                // Deshabilitar botón durante el envío
+                botonRegistrar.disabled = true;
+                botonRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registrando...';
+
+                const response = await fetch('/api/cliente/registrar-vehiculo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datosVehiculo)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Cerrar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalRegistrarVehiculo'));
+                    modal.hide();
+
+                    // Limpiar formulario
+                    form.reset();
+
+                    // Mostrar notificación de éxito
+                    mostrarNotificacion({
+                        tipo: 'VEHICULO_REGISTRADO',
+                        titulo: '¡Vehículo Registrado!',
+                        mensaje: `Tu vehículo ${result.vehiculo.marca} ${result.vehiculo.modelo} (${result.vehiculo.placa}) ha sido registrado exitosamente.`
+                    });
+
+                    // Recargar la página después de 2 segundos
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Error al registrar el vehículo');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al registrar el vehículo: ' + error.message);
+            } finally {
+                // Restaurar botón
+                botonRegistrar.disabled = false;
+                botonRegistrar.innerHTML = textoOriginal;
             }
         }
     </script>

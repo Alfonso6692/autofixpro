@@ -4,6 +4,7 @@ import com.example.autofixpro.entity.Usuario;
 import com.example.autofixpro.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,10 +33,14 @@ public class AuthController {
                            @RequestParam(value = "logout", required = false) String logout,
                            Model model) {
 
-        // Si ya está autenticado, redirigir al dashboard
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
-            return "redirect:/dashboard";
+            // Redirigir al dashboard correcto según el rol
+            if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER"))) {
+                return "redirect:/cliente-dashboard";
+            } else {
+                return "redirect:/dashboard";
+            }
         }
 
         model.addAttribute("title", "AutoFixPro - Iniciar Sesión");
@@ -75,7 +80,6 @@ public class AuthController {
                               @RequestParam(required = false) String dni,
                               RedirectAttributes redirectAttributes) {
         try {
-            // Validaciones
             if (!usuario.getPassword().equals(confirmPassword)) {
                 redirectAttributes.addFlashAttribute("error", "Las contraseñas no coinciden");
                 return "redirect:/register";
@@ -86,12 +90,10 @@ public class AuthController {
                 return "redirect:/register";
             }
 
-            // Si no se especifica rol, asignar USER por defecto
             if (usuario.getRole() == null) {
                 usuario.setRole(Usuario.Role.USER);
             }
 
-            // Registrar usuario (el DNI se pasa al servicio)
             usuarioService.registrarUsuario(usuario, dni);
 
             redirectAttributes.addFlashAttribute("message", "Registro exitoso. Por favor inicia sesión.");
@@ -141,7 +143,6 @@ public class AuthController {
             Usuario usuario = usuarioService.buscarPorUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            // Validaciones
             if (!nuevaPassword.equals(confirmarPassword)) {
                 redirectAttributes.addFlashAttribute("error", "Las contraseñas nuevas no coinciden");
                 return "redirect:/perfil";

@@ -21,8 +21,8 @@ public class Vehiculo {
     @Column(nullable = false, length = 50)
     private String modelo;
 
-    @Column(nullable = false)
-    private String año;
+    @Column(name = "año", nullable = false)
+    private String year;
 
     @Column(length = 30)
     private String color;
@@ -44,11 +44,11 @@ public class Vehiculo {
     // Constructores
     public Vehiculo() {}
 
-    public Vehiculo(String placa, String marca, String modelo, String año) {
+    public Vehiculo(String placa, String marca, String modelo, String year) {
         this.placa = placa;
         this.marca = marca;
         this.modelo = modelo;
-        this.año = año;
+        this.year = year;
     }
 
     // Métodos de negocio
@@ -69,8 +69,8 @@ public class Vehiculo {
     public String getModelo() { return modelo; }
     public void setModelo(String modelo) { this.modelo = modelo; }
 
-    public String getAño() { return año; }
-    public void setAño(String año) { this.año = año; }
+    public String getYear() { return year; }
+    public void setYear(String year) { this.year = year; }
 
     public String getColor() { return color; }
     public void setColor(String color) { this.color = color; }

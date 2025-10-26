@@ -18,8 +18,8 @@ public interface VehiculoDAO extends JpaRepository<Vehiculo, Long> {
 
     List<Vehiculo> findByMarcaAndModelo(String marca, String modelo);
 
-    @Query("SELECT v FROM Vehiculo v WHERE v.año >= :añoMinimo")
-    List<Vehiculo> findByAñoGreaterThanEqual(@Param("añoMinimo") String añoMinimo);
+    @Query("SELECT v FROM Vehiculo v WHERE v.year >= :yearMinimo")
+    List<Vehiculo> findByAñoGreaterThanEqual(@Param("yearMinimo") String yearMinimo);
 
     // Para el caso de uso CU08: Consultar estado del vehículo
     @Query("SELECT v FROM Vehiculo v LEFT JOIN FETCH v.ordenesServicio os " +

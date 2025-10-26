@@ -92,7 +92,7 @@ public class OrdenServicioDTO {
                 v.getPlaca(),
                 v.getMarca(),
                 v.getModelo(),
-                v.getAño(),
+                v.getYear(),
                 v.getColor()
             );
         }
