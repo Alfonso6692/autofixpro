@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -51,7 +53,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 // Permitir acceso a recursos estáticos
-                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/imagenes/**", "/favicon.ico").permitAll()
+                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/imagenes/**", "/favicon.ico", "/*.html").permitAll()
                 // Permitir acceso público a login, registro y páginas de consulta
                 .requestMatchers("/", "/index", "/web", "/login", "/register", "/consultar", "/api/auth/**").permitAll()
                 // WebSocket endpoints - permitir acceso (la seguridad se maneja a nivel de usuario)
@@ -84,7 +86,10 @@ public class SecurityConfig {
                 .accessDeniedPage("/access-denied")
             )
             .logout(logout -> logout
-                .logoutUrl("/logout")
+                .logoutRequestMatcher(new OrRequestMatcher(
+                    new AntPathRequestMatcher("/logout", "GET"),
+                    new AntPathRequestMatcher("/logout", "POST")
+                ))
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")

@@ -12,4 +12,5 @@ class VehiculoDTO {
     String serie
     String vin
     String motor
+    String proveedor // Proveedor usado para obtener los datos
 }

@@ -55,6 +55,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.apache.groovy:groovy'
+    implementation 'org.apache.groovy:groovy-json'
+    implementation 'org.apache.groovy:groovy-xml'
     implementation 'software.amazon.awssdk:sns:2.25.32'
     // MySQL como base de datos principal
     runtimeOnly 'mysql:mysql-connector-java:8.0.33'

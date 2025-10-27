@@ -1,17 +1,20 @@
 package com.example.autofixpro.controller;
 
 import com.example.autofixpro.dto.OrdenServicioDTO;
+import com.example.autofixpro.dto.VehiculoDTO;
 import com.example.autofixpro.entity.Cliente;
 import com.example.autofixpro.entity.OrdenServicio;
 import com.example.autofixpro.entity.Vehiculo;
 import com.example.autofixpro.service.VehiculoService;
 import com.example.autofixpro.service.ClienteService;
 import com.example.autofixpro.service.OrdenServicioService;
+import com.example.autofixpro.service.sunarp.SunarpOrchestratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +37,9 @@ public class VehiculoController extends BaseController {
 
     @Autowired
     private OrdenServicioService ordenServicioService;
+
+    @Autowired
+    private SunarpOrchestratorService sunarpService;
 
     /**
      * Obtiene una lista de todos los vehículos registrados.
@@ -168,6 +174,66 @@ public class VehiculoController extends BaseController {
             }
         } catch (Exception e) {
             return createErrorResponse("Error al actualizar vehículo: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Consulta la información de un vehículo en SUNARP por su placa
+     * Usa múltiples proveedores con fallback automático
+     * @param placa La placa del vehículo a consultar.
+     * @return ResponseEntity con los datos del vehículo desde SUNARP.
+     */
+    @GetMapping("/sunarp/{placa}")
+    public ResponseEntity<Map<String, Object>> consultarPlacaSUNARP(@PathVariable String placa) {
+        try {
+            VehiculoDTO vehiculoDTO = sunarpService.consultarPlaca(placa);
+            return createSuccessResponse(vehiculoDTO, "Datos del vehículo obtenidos desde SUNARP exitosamente");
+        } catch (RuntimeException e) {
+            return createErrorResponse("Error al consultar SUNARP: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return createErrorResponse("Error al consultar SUNARP: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Obtiene el estado de todos los proveedores SUNARP
+     * @return ResponseEntity con información de cada proveedor
+     */
+    @GetMapping("/sunarp/providers/status")
+    public ResponseEntity<Map<String, Object>> getProvidersStatus() {
+        try {
+            Map<String, Object> status = sunarpService.getProvidersStatus();
+            List<String> available = sunarpService.getAvailableProviders();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("providers", status);
+            response.put("available_providers", available);
+            response.put("total_providers", status.size());
+            response.put("available_count", available.size());
+
+            return createSuccessResponse(response, "Estado de proveedores obtenido exitosamente");
+        } catch (Exception e) {
+            return createErrorResponse("Error al obtener estado de proveedores: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Consulta con un proveedor específico
+     * @param placa La placa del vehículo
+     * @param providerName Nombre del proveedor a usar
+     * @return ResponseEntity con los datos del vehículo
+     */
+    @GetMapping("/sunarp/{placa}/provider/{providerName}")
+    public ResponseEntity<Map<String, Object>> consultarConProveedor(
+            @PathVariable String placa,
+            @PathVariable String providerName) {
+        try {
+            VehiculoDTO vehiculoDTO = sunarpService.consultarConProveedor(placa, providerName);
+            return createSuccessResponse(vehiculoDTO, "Datos obtenidos con proveedor: " + providerName);
+        } catch (RuntimeException e) {
+            return createErrorResponse("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return createErrorResponse("Error al consultar: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
